@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseWindowsForms>false</UseWindowsForms>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Title>Transiever.OutlookResiever application engine</Title>
+    <Description>Classic Outlook rule source adapter for Transiever.SieveRuler.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Temporary until SieveRuler is published as a versioned NuGet package. -->
+    <ProjectReference Include="..\..\..\SieveRuler\src\Transiever.SieveRuler\Transiever.SieveRuler.csproj" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Transiever.OutlookResiever.Cli.UnitTest/Transiever.OutlookResiever.Cli.UnitTest.csproj" />
+    <Project Path="src/Transiever.OutlookResiever.Cli/Transiever.OutlookResiever.Cli.csproj" />
+    <Project Path="src/Transiever.OutlookResiever.UnitTest/Transiever.OutlookResiever.UnitTest.csproj" />
+    <Project Path="src/Transiever.OutlookResiever/Transiever.OutlookResiever.csproj" />
+  </Folder>
+</Solution>
