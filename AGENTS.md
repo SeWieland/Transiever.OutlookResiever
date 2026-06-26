@@ -11,6 +11,9 @@ The repository name is intentionally spelled `OutlookResiever`.
 ## Layout and Boundary
 
 ```text
+Transiever.OutlookResiever.slnx
+docs/architecture.md
+docs/outlook-export.md
 src/
   Transiever.OutlookResiever/              Outlook COM adapter
   Transiever.OutlookResiever.Cli/          `olrx` compatibility CLI
@@ -41,25 +44,21 @@ Do not add Office interop packages. Keep `olrx` Windows/x64 and `[STAThread]`.
 Release COM objects best-effort and return per-rule diagnostics rather than
 aborting the entire export.
 
-Every export writes `Transiever.SieveRuler` schema v2 with `sourceId:
-"outlook"`.
-Folder export must normalize Outlook display paths to IMAP/Sieve mailbox names.
-Prefer Outlook default-folder identity when available; otherwise use the
-mailbox.org/Open-Xchange German and English default-folder aliases. Folder
-mapping customization is environment-variable based, not CLI-flag based.
+Every export writes `Transiever.SieveRuler` schema v2 with `sourceId: "outlook"`.
+Outlook export and folder normalization behavior are documented once in
+`docs/outlook-export.md`.
 
 ## CLI Behavior
 
 Keep `run`, `export`, `inspect`, `optimize`, `generate`, `preview`, `deploy`,
 and `rollback`. `run` is the guided Outlook workflow: export, optional
 optimization, server preview, upload confirmation, and deployment through
-`Transiever.SieveRuler`. When preview targets the current active script,
-deployment creates a server-side backup and replaces the active script in
-place by default; non-active targets are activated by default. Deploy and run
-expose SieveRuler's bounded inactive history pruning options. Generic commands delegate to
-`Transiever.SieveRuler`. Preview reads an existing `rules.json`, never exports
-Outlook rules implicitly, and writes combined state to `reconciled-rules.json`
-plus rendered candidate rules to `candidate-rules.json`.
+`Transiever.SieveRuler`.
+
+Generic commands delegate to `Transiever.SieveRuler`.
+Preview reads an existing `rules.json` and never exports Outlook rules implicitly.
+SieveRuler deployment, rollback, and history policy remain documented in the
+SieveRuler repository.
 
 Accept `OUTLOOKRESIEVER_SIEVE_*` first and `SIEVERULER_SIEVE_*` as fallback.
 Accept `OUTLOOKRESIEVER_FOLDER_*` for mailbox root overrides such as
@@ -75,5 +74,5 @@ dotnet test Transiever.OutlookResiever.slnx
 dotnet run --project src/Transiever.OutlookResiever.Cli -- --help
 ```
 
-Update both READMEs and architecture with behavior changes. Unit tests must not
-require Outlook or credentials.
+Update this file, both READMEs, architecture, and Outlook export docs when their
+contracts change. Unit tests must not require Outlook or credentials.
