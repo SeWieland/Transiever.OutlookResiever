@@ -36,7 +36,7 @@ src/Transiever.OutlookResiever.Cli.UnitTest/ CLI tests
 * Folder display path normalization for IMAP/Sieve mailbox names.
 * `olrx export` and the guided `olrx run` synchronization workflow.
 
-Operational details intentionally live in the linked component guides instead of being repeated here.
+Operational details live in the linked component guides instead of being repeated here.
 
 ## Development
 

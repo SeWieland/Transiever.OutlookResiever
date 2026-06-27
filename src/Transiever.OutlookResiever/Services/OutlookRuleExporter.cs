@@ -3,6 +3,9 @@ using Transiever.SieveRuler.Models;
 
 namespace Transiever.OutlookResiever.Services;
 
+/// <summary>
+/// Default Outlook exporter that reads supported rules from classic Outlook COM.
+/// </summary>
 public sealed class OutlookRuleExporter : IOutlookRuleExporter
 {
     private const int OutlookDeletedItemsFolder = 3;

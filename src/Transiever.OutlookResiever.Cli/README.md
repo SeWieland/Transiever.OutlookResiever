@@ -1,7 +1,7 @@
 # `olrx`
 
-`olrx` exports supported rules from classic Outlook into `Transiever.SieveRuler`
-JSON and can run the guided Outlook-to-server workflow.
+`olrx` exports supported rules from classic Outlook into `Transiever.SieveRuler` JSON.
+It can also run the guided Outlook-to-server workflow.
 
 Repository overview lives in [../../README.md](../../README.md).
 System boundaries live in [../../docs/architecture.md](../../docs/architecture.md).
@@ -34,9 +34,9 @@ olrx run
 `export` writes supported Outlook rules to `rules.json`.
 Use `--rules <file>` to select a different destination.
 
-`run` exports supported Outlook rules, asks for optimization when running
-interactively, previews the server-side candidate, writes review artifacts, then
-asks before deployment.
+`run` exports supported Outlook rules.
+It asks for optimization when running interactively.
+It previews the server-side candidate, writes review artifacts, and asks before deployment.
 
 Use explicit flags for unattended runs:
 
@@ -79,38 +79,37 @@ The equivalent `SIEVERULER_SIEVE_*` variables are accepted as fallback.
 
 ## Review Artifacts
 
-`run` writes `reconciled-rules.json`, `candidate-rules.json`,
-`server-active.sieve`, `candidate.sieve`, and `deployment-plan.json`.
+`run` writes `reconciled-rules.json`, `candidate-rules.json`, `server-active.sieve`, `candidate.sieve`, and `deployment-plan.json`.
 
 * `reconciled-rules.json` is the ownership review document.
-* `candidate-rules.json` contains the managed rules actually rendered into
-  `candidate.sieve`, including optimization when selected.
+* `candidate-rules.json` contains the managed rules actually rendered into `candidate.sieve`, including optimization when selected.
 
 Interactive preview offers to adopt compatible external rules.
 Redirected input preserves them.
 Use `--adopt-compatible` or `--preserve-compatible` to make the choice explicit.
-If the server has an active script, preview uses that active script name as the
-deployment target by default; use `--script-name <name>` to override it.
+If the server has an active script, preview uses that active script name as the deployment target by default.
+Use `--script-name <name>` to override it.
 
-When deployment proceeds, SieveRuler validates the exact previewed candidate and
-rechecks the active script snapshot.
-If the target is active, it uploads a server-side `srtx-backup-*` copy, replaces
-the active script in place, and retains the backup.
+When deployment proceeds, SieveRuler validates the exact previewed candidate and rechecks the active script snapshot.
+If the target is active, it uploads a server-side `srtx-backup-*` copy, replaces the active script in place, and retains the backup.
 If the target is not active, it uploads and activates that target.
 
-Deployment prunes inactive SieveRuler-owned history by default, retaining the
-oldest backup plus the newest 5 remaining history scripts.
-Use `--history-limit <count>` to change that newest-history count or
-`--no-prune-history` to disable deletion.
+Deployment prunes inactive SieveRuler-owned history by default, retaining the oldest backup plus the newest 5 remaining history scripts.
+Use `--history-limit <count>` to change that newest-history count.
+Use `--no-prune-history` to disable deletion.
 
 ## Folder Mapping
 
 Outlook folder export uses mailbox.org/Open-Xchange defaults for localized default folders.
-It first tries Outlook's default-folder identity and then maps German/English display roots such as
-`Posteingang`/`Inbox` to `INBOX`,
-`Entwürfe`/`Drafts` to `Drafts`, `Gesendete Objekte`/`Sent Items` to `Sent`,
-`Papierkorb`/`Deleted Items` to `Trash`, `Junk-E-Mail`/`Junk` to `Spam`, and
-`Archiv`/`Archive` to `Archive`.
+It first tries Outlook's default-folder identity.
+It then maps German and English display roots:
+
+* `Posteingang` and `Inbox` map to `INBOX`.
+* `Entwürfe` and `Drafts` map to `Drafts`.
+* `Gesendete Objekte` and `Sent Items` map to `Sent`.
+* `Papierkorb` and `Deleted Items` map to `Trash`.
+* `Junk-E-Mail` and `Junk` map to `Spam`.
+* `Archiv` and `Archive` map to `Archive`.
 
 Override mailbox names without CLI flags:
 

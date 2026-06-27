@@ -15,11 +15,11 @@ Activator.CreateInstance(...)
 dynamic
 ```
 
-*Note for Agents*:
+Note for agents:
 
 Do not add Office interop packages.
 Keep `olrx` Windows/x64 and `[STAThread]`.
-Release COM objects best-effort and return per-rule diagnostics rather than aborting the entire export.
+Release COM objects best-effort and return per-rule diagnostics instead of aborting the entire export.
 
 ## Source Documents
 
@@ -46,6 +46,5 @@ Junk-E-Mail -> Spam
 Archiv -> Archive
 ```
 
-Provider-specific mailbox root overrides are read from `OUTLOOKRESIEVER_FOLDER_*`
-environment variables in the CLI composition root.
+Provider-specific mailbox root overrides are read from `OUTLOOKRESIEVER_FOLDER_*` environment variables in the CLI composition root.
 Folder mapping customization is environment-variable based, not CLI-flag based.

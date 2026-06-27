@@ -1,5 +1,8 @@
 namespace Transiever.OutlookResiever.Services;
 
+/// <summary>
+/// Normalizes Outlook folder paths to the mailbox naming scheme used by SieveRuler.
+/// </summary>
 public sealed class OutlookFolderNormalizer : IFolderNormalizer
 {
     private static readonly IReadOnlyDictionary<string, OutlookDefaultFolderRole> RootAliases =

@@ -1,5 +1,9 @@
 .vscode/
 bin/
 obj/
-src/Transiever.OutlookResiever/**/*.sieve
-src/Transiever.OutlookResiever/**/*.json
+**/reconciled-rules.json
+**/candidate-rules.json
+**/deployment-plan.json
+**/candidate.sieve
+**/server-active.sieve
+**/rules.json

@@ -1,5 +1,8 @@
 namespace Transiever.OutlookResiever.Services;
 
+/// <summary>
+/// Preferred mailbox folder names used by Outlook export.
+/// </summary>
 public sealed record OutlookFolderMappingOptions
 {
     public string Inbox { get; init; } = "INBOX";
