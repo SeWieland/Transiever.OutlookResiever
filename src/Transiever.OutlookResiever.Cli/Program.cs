@@ -50,7 +50,6 @@ public static class Program
                     OutlookFolderMappingOptionsProvider.GetOptions()));
         var cli = new OutlookResieverCliApplication(
             new OutlookExportApplication(exporter, serializer),
-            new SieveRulerApplication(serializer, optimizer, generator),
             synchronization,
             new EnvironmentSieveServerConfigurationProvider(),
             interaction);

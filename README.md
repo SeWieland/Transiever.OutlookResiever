@@ -2,8 +2,8 @@
 
 Windows adapter and CLI for exporting supported classic Outlook rules into the cross-platform `Transiever.SieveRuler` JSON contract.
 
-`olrx` remains a compatibility frontend. It delegates rule optimization, Sieve generation, reconciliation,
-ManageSieve deployment, rollback, and retained history policy to `Transiever.SieveRuler`.
+`olrx` provides `export` for local Outlook export and `run` for the guided Outlook-to-server workflow.
+Generic rule inspection, Sieve generation, preview, deployment, rollback, and history commands live in `srtx`.
 
 ```text
 olrx / Transiever.OutlookResiever
@@ -15,7 +15,7 @@ olrx / Transiever.OutlookResiever
 
 Start here, then follow the focused guides:
 
-* [CLI guide](src/Transiever.OutlookResiever.Cli/README.md) for commands, environment variables, Outlook export, preview, deployment, and rollback.
+* [CLI guide](src/Transiever.OutlookResiever.Cli/README.md) for commands, environment variables, Outlook export, preview, and deployment.
 * [adapter guide](src/Transiever.OutlookResiever/README.md) for the Outlook COM adapter boundary.
 * [architecture](docs/architecture.md) for repository boundaries and dependency direction.
 * [Outlook export](docs/outlook-export.md) for COM, rule mapping, folder normalization, and source document behavior.
@@ -24,17 +24,17 @@ Start here, then follow the focused guides:
 
 ```text
 src/Transiever.OutlookResiever/              Outlook COM adapter
-src/Transiever.OutlookResiever.Cli/          `olrx` compatibility CLI
+src/Transiever.OutlookResiever.Cli/          `olrx` workflow CLI
 src/Transiever.OutlookResiever.UnitTest/     Adapter tests
-src/Transiever.OutlookResiever.Cli.UnitTest/ CLI compatibility tests
+src/Transiever.OutlookResiever.Cli.UnitTest/ CLI tests
 ```
 
 ## Feature Summary
 
 * Late-bound classic Outlook COM rule export.
-* `Transiever.SieveRuler` schema v2 output with `sourceId: "outlook"`.
+* `Transiever.SieveRuler` schema v1 output with `sourceId: "outlook"`.
 * Folder display path normalization for IMAP/Sieve mailbox names.
-* `olrx` compatibility commands for local conversion and server synchronization.
+* `olrx export` and the guided `olrx run` synchronization workflow.
 
 Operational details intentionally live in the linked component guides instead of being repeated here.
 

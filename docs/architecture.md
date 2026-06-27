@@ -21,13 +21,13 @@ Classic Outlook COM
 preservation, review artifacts, and deployment policy.
 `Transiever.ManageSieve` owns ManageSieve protocol execution.
 
-`olrx` remains a Windows/x64 convenience wrapper.
+`olrx` is a Windows/x64 workflow CLI.
 Its `run` command is the guided Outlook workflow:
 export Outlook rules, choose optimization when interactive, preview server reconciliation,
-ask before deployment, and then use SieveRuler's deployment prompts.
+and ask before deployment.
 
 Its `export` command is local.
-`inspect`, `optimize`, `generate`, `preview`, `deploy`, and `rollback` delegate to `Transiever.SieveRuler`.
+Use `srtx` for generic inspection, optimization, Sieve generation, preview, deployment, rollback, and history commands.
 
 The CLI accepts `OUTLOOKRESIEVER_SIEVE_*` configuration and falls back to `SIEVERULER_SIEVE_*`.
 Outlook-specific variables take precedence.

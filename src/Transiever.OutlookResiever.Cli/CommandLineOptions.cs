@@ -9,10 +9,6 @@ public sealed class CommandLineOptions
 
     public string RulesFile { get; private init; } = "rules.json";
 
-    public string SieveFile { get; private init; } = "rules.sieve";
-
-    public string OutputFile { get; private init; } = "rules.optimized.json";
-
     public string CandidateFile { get; private init; } = "candidate.sieve";
 
     public string ReconciledRulesFile { get; private init; } =
@@ -34,10 +30,6 @@ public sealed class CommandLineOptions
     public bool? AdoptCompatible { get; private init; }
 
     public bool Deploy { get; private init; }
-
-    public bool Activate { get; private init; }
-
-    public bool Force { get; private init; }
 
     public bool DryRun { get; private init; }
 
@@ -68,34 +60,19 @@ public sealed class CommandLineOptions
         index++;
 
         var rulesFile = "rules.json";
-        var sieveFile = "rules.sieve";
-        var outputFile = "rules.optimized.json";
         var candidateFile = "candidate.sieve";
         var reconciledRulesFile = "reconciled-rules.json";
         var candidateRulesFile = "candidate-rules.json";
         var serverSnapshotFile = "server-active.sieve";
         var planFile = "deployment-plan.json";
         string? scriptName = null;
-        RuleOptimizationMode? optimizationMode = command == OutlookResieverCommand.Optimize
-            ? RuleOptimizationMode.Conservative
-            : null;
-        bool optimizationChoiceSpecified = command == OutlookResieverCommand.Optimize;
+        RuleOptimizationMode? optimizationMode = null;
+        bool optimizationChoiceSpecified = false;
         bool? adoptCompatible = null;
         var deploy = false;
-        var activate = false;
-        var force = false;
         var dryRun = false;
         var historyLimit = 5;
         var pruneHistory = true;
-
-        if (command == OutlookResieverCommand.Optimize
-            && index < args.Count
-            && !args[index].StartsWith("-", StringComparison.Ordinal))
-        {
-            optimizationMode = ParseOptimizationMode(args[index]);
-            optimizationChoiceSpecified = true;
-            index++;
-        }
 
         while (index < args.Count)
         {
@@ -105,14 +82,6 @@ public sealed class CommandLineOptions
             {
                 case "--rules":
                     rulesFile = ReadOptionValue(args, ref index, option);
-                    break;
-
-                case "--sieve":
-                    sieveFile = ReadOptionValue(args, ref index, option);
-                    break;
-
-                case "--output":
-                    outputFile = ReadOptionValue(args, ref index, option);
                     break;
 
                 case "--candidate":
@@ -151,15 +120,6 @@ public sealed class CommandLineOptions
                     deploy = true;
                     break;
 
-                case "--activate":
-                    deploy = true;
-                    activate = true;
-                    break;
-
-                case "--force":
-                    force = true;
-                    break;
-
                 case "--optimize":
                     optimizationMode = ReadOptionalOptimizationMode(
                         args,
@@ -169,12 +129,6 @@ public sealed class CommandLineOptions
                     break;
 
                 case "--no-optimize":
-                    if (command == OutlookResieverCommand.Optimize)
-                    {
-                        throw new ArgumentException(
-                            "--no-optimize is not valid for the optimize command.");
-                    }
-
                     optimizationMode = null;
                     optimizationChoiceSpecified = true;
                     break;
@@ -228,8 +182,6 @@ public sealed class CommandLineOptions
         {
             Command = command,
             RulesFile = rulesFile,
-            SieveFile = sieveFile,
-            OutputFile = outputFile,
             CandidateFile = candidateFile,
             ReconciledRulesFile = reconciledRulesFile,
             CandidateRulesFile = candidateRulesFile,
@@ -240,8 +192,6 @@ public sealed class CommandLineOptions
             OptimizationChoiceSpecified = optimizationChoiceSpecified,
             AdoptCompatible = adoptCompatible,
             Deploy = deploy,
-            Activate = activate,
-            Force = force,
             DryRun = dryRun,
             HistoryLimit = historyLimit,
             PruneHistory = pruneHistory
@@ -254,12 +204,6 @@ public sealed class CommandLineOptions
         {
             "run" => OutlookResieverCommand.Run,
             "export" => OutlookResieverCommand.Export,
-            "generate" => OutlookResieverCommand.Generate,
-            "inspect" => OutlookResieverCommand.Inspect,
-            "optimize" => OutlookResieverCommand.Optimize,
-            "preview" => OutlookResieverCommand.Preview,
-            "deploy" => OutlookResieverCommand.Deploy,
-            "rollback" => OutlookResieverCommand.Rollback,
             _ => null
         };
     }

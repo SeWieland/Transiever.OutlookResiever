@@ -7,7 +7,7 @@ This Windows/x64 library contains only:
 * Outlook folder normalization;
 * export diagnostics and the `OutlookExportApplication`.
 
-Exports are `Transiever.SieveRuler` schema v2 documents with `sourceId:
+Exports are `Transiever.SieveRuler` schema v1 documents with `sourceId:
 "outlook"`.
 
 Outlook access and folder normalization are documented in [../../docs/outlook-export.md](../../docs/outlook-export.md).

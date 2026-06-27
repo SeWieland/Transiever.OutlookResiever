@@ -9,35 +9,6 @@ namespace Transiever.OutlookResiever.Cli.UnitTest;
 public sealed class OutlookResieverCliApplicationTests
 {
     [Fact]
-    public async Task Preview_ReadsRulesFileWithoutExportingOutlookRules()
-    {
-        var exporter = new FakeExporter();
-        var synchronization = new FakeSynchronization();
-        var interaction = new FakeRunInteraction();
-        OutlookResieverCliApplication application = CreateApplication(
-            exporter,
-            synchronization,
-            interaction);
-
-        int exitCode = await application.RunAsync(
-            CommandLineOptions.Parse(
-                [
-                    "preview",
-                    "--rules", "rules.json",
-                    "--candidate-rules", "candidate-rules.json"
-                ]),
-            TestContext.Current.CancellationToken);
-
-        Assert.Equal(0, exitCode);
-        Assert.Equal(0, exporter.ExportCount);
-        Assert.Equal(1, synchronization.PreviewCount);
-        Assert.Null(synchronization.LastPreviewRequest?.SourceDocument);
-        Assert.Equal(
-            "candidate-rules.json",
-            synchronization.LastPreviewRequest?.CandidateRulesFile);
-    }
-
-    [Fact]
     public async Task Run_ExportsPromptsPreviewsAndSkipsUploadWhenDeclined()
     {
         string directory = CreateDirectory();
@@ -119,46 +90,6 @@ public sealed class OutlookResieverCliApplicationTests
         }
     }
 
-    [Fact]
-    public async Task Rollback_DelegatesWithoutExportingOutlookRules()
-    {
-        var exporter = new FakeExporter();
-        var synchronization = new FakeSynchronization();
-        OutlookResieverCliApplication application = CreateApplication(
-            exporter,
-            synchronization,
-            new FakeRunInteraction());
-
-        int exitCode = await application.RunAsync(
-            CommandLineOptions.Parse(["rollback", "--plan", "plan.json", "--force"]),
-            TestContext.Current.CancellationToken);
-
-        Assert.Equal(0, exitCode);
-        Assert.Equal(0, exporter.ExportCount);
-        Assert.Equal(1, synchronization.RollbackCount);
-        Assert.True(synchronization.LastRollbackRequest?.Force);
-        Assert.Equal("plan.json", synchronization.LastRollbackRequest?.PlanFile);
-    }
-
-    [Fact]
-    public async Task Preview_ForwardsExplicitScriptName()
-    {
-        var exporter = new FakeExporter();
-        var synchronization = new FakeSynchronization();
-        OutlookResieverCliApplication application = CreateApplication(
-            exporter,
-            synchronization,
-            new FakeRunInteraction());
-
-        int exitCode = await application.RunAsync(
-            CommandLineOptions.Parse(
-                ["preview", "--script-name", "Open-Xchange"]),
-            TestContext.Current.CancellationToken);
-
-        Assert.Equal(0, exitCode);
-        Assert.Equal("Open-Xchange", synchronization.LastPreviewRequest?.TargetScriptName);
-    }
-
     private static OutlookResieverCliApplication CreateApplication(
         FakeExporter exporter,
         FakeSynchronization synchronization,
@@ -167,10 +98,6 @@ public sealed class OutlookResieverCliApplicationTests
         var serializer = new JsonRuleSerializer();
         return new OutlookResieverCliApplication(
             new OutlookExportApplication(exporter, serializer),
-            new SieveRulerApplication(
-                serializer,
-                new RuleOptimizer(),
-                new SieveGenerator()),
             synchronization,
             new FakeConfigurationProvider(),
             interaction);
@@ -239,7 +166,7 @@ public sealed class OutlookResieverCliApplicationTests
                 {
                     Status = PreviewSynchronizationStatus.Prepared,
                     ManagedRuleCount = 1,
-                    SuggestedScriptName = "srtx-test",
+                    TargetScriptName = "srtx-test",
                     FilesWritten = true
                 });
         }

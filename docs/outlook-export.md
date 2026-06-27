@@ -23,10 +23,10 @@ Release COM objects best-effort and return per-rule diagnostics rather than abor
 
 ## Source Documents
 
-Every export writes a `Transiever.SieveRuler` schema v2 document with `sourceId: "outlook"`.
+Every export writes a `Transiever.SieveRuler` schema v1 document with `sourceId: "outlook"`.
 
-Preview reads an existing source document from `rules.json`.
-It never exports Outlook rules implicitly and never overwrites the source document with server state.
+The `run` workflow exports Outlook rules to `rules.json`.
+Server reconciliation never overwrites the source document with server state.
 
 ## Folder Normalization
 

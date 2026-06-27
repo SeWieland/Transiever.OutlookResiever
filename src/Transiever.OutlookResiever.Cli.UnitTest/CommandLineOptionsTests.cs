@@ -19,23 +19,10 @@ public sealed class CommandLineOptionsTests
 
         Assert.Equal(OutlookResieverCommand.Run, options.Command);
         Assert.Equal("rules.json", options.RulesFile);
-        Assert.Equal("rules.sieve", options.SieveFile);
         Assert.Equal("candidate-rules.json", options.CandidateRulesFile);
         Assert.Null(options.OptimizationMode);
         Assert.False(options.OptimizationChoiceSpecified);
         Assert.False(options.Deploy);
-    }
-
-    [Fact]
-    public void Parse_AllowsOptimizationDuringGeneration()
-    {
-        CommandLineOptions options = CommandLineOptions.Parse(
-            ["generate", "--optimize", "--output", "prepared.json"]);
-
-        Assert.Equal(OutlookResieverCommand.Generate, options.Command);
-        Assert.Equal(RuleOptimizationMode.Conservative, options.OptimizationMode);
-        Assert.True(options.OptimizationChoiceSpecified);
-        Assert.Equal("prepared.json", options.OutputFile);
     }
 
     [Theory]
@@ -60,26 +47,7 @@ public sealed class CommandLineOptionsTests
     public void Parse_ReadsOptimizationModeAfterOptimizeOption()
     {
         CommandLineOptions options = CommandLineOptions.Parse(
-            ["generate", "--optimize", "balanced"]);
-
-        Assert.Equal(RuleOptimizationMode.Balanced, options.OptimizationMode);
-        Assert.True(options.OptimizationChoiceSpecified);
-    }
-
-    [Fact]
-    public void Parse_OptimizeCommandDefaultsToConservative()
-    {
-        CommandLineOptions options = CommandLineOptions.Parse(["optimize"]);
-
-        Assert.Equal(RuleOptimizationMode.Conservative, options.OptimizationMode);
-        Assert.True(options.OptimizationChoiceSpecified);
-    }
-
-    [Fact]
-    public void Parse_OptimizeCommandAcceptsPositionalMode()
-    {
-        CommandLineOptions options = CommandLineOptions.Parse(
-            ["optimize", "balanced"]);
+            ["run", "--optimize", "balanced"]);
 
         Assert.Equal(RuleOptimizationMode.Balanced, options.OptimizationMode);
         Assert.True(options.OptimizationChoiceSpecified);
@@ -113,11 +81,11 @@ public sealed class CommandLineOptionsTests
     }
 
     [Fact]
-    public void Parse_ReadsPreviewOwnershipAndArtifactOptions()
+    public void Parse_RunReadsPreviewOwnershipAndArtifactOptions()
     {
         CommandLineOptions options = CommandLineOptions.Parse(
             [
-                "preview",
+                "run",
                 "--adopt-compatible",
                 "--candidate", "candidate.sieve",
                 "--candidate-rules", "candidate-rules.json",
@@ -126,7 +94,7 @@ public sealed class CommandLineOptionsTests
                 "--plan", "plan.json"
             ]);
 
-        Assert.Equal(OutlookResieverCommand.Preview, options.Command);
+        Assert.Equal(OutlookResieverCommand.Run, options.Command);
         Assert.True(options.AdoptCompatible);
         Assert.Equal("candidate.sieve", options.CandidateFile);
         Assert.Equal("candidate-rules.json", options.CandidateRulesFile);
@@ -136,57 +104,49 @@ public sealed class CommandLineOptionsTests
     }
 
     [Fact]
-    public void Parse_RunActivationImpliesDeploy()
+    public void Parse_RejectsActivateAlias()
     {
-        CommandLineOptions options =
-            CommandLineOptions.Parse(["run", "--activate"]);
+        ArgumentException exception = Assert.Throws<ArgumentException>(
+            () => CommandLineOptions.Parse(["run", "--activate"]));
 
-        Assert.Equal(OutlookResieverCommand.Run, options.Command);
-        Assert.True(options.Deploy);
-        Assert.True(options.Activate);
+        Assert.Contains("Unknown option", exception.Message);
+    }
+
+    [Theory]
+    [InlineData("--sieve")]
+    [InlineData("--output")]
+    [InlineData("--force")]
+    public void Parse_RejectsRemovedGenericOptions(string option)
+    {
+        ArgumentException exception = Assert.Throws<ArgumentException>(
+            () => CommandLineOptions.Parse(["run", option, "value"]));
+
+        Assert.Contains("Unknown option", exception.Message);
     }
 
     [Fact]
-    public void Parse_DeployActivationIsExplicit()
-    {
-        CommandLineOptions options =
-            CommandLineOptions.Parse(["deploy", "--plan", "plan.json", "--activate"]);
-
-        Assert.Equal(OutlookResieverCommand.Deploy, options.Command);
-        Assert.True(options.Deploy);
-        Assert.True(options.Activate);
-    }
-
-    [Fact]
-    public void Parse_DeployReadsHistoryOptions()
+    public void Parse_RunReadsHistoryOptions()
     {
         CommandLineOptions options = CommandLineOptions.Parse(
-            ["deploy", "--history-limit", "3", "--no-prune-history"]);
+            ["run", "--history-limit", "3", "--no-prune-history"]);
 
-        Assert.Equal(OutlookResieverCommand.Deploy, options.Command);
+        Assert.Equal(OutlookResieverCommand.Run, options.Command);
         Assert.Equal(3, options.HistoryLimit);
         Assert.False(options.PruneHistory);
     }
 
-    [Fact]
-    public void Parse_RunReadsHistoryLimit()
+    [Theory]
+    [InlineData("inspect")]
+    [InlineData("optimize")]
+    [InlineData("generate")]
+    [InlineData("preview")]
+    [InlineData("deploy")]
+    [InlineData("rollback")]
+    public void Parse_RejectsGenericSieveRulerCommands(string command)
     {
-        CommandLineOptions options = CommandLineOptions.Parse(
-            ["run", "--history-limit", "3"]);
+        ArgumentException exception = Assert.Throws<ArgumentException>(
+            () => CommandLineOptions.Parse([command]));
 
-        Assert.Equal(OutlookResieverCommand.Run, options.Command);
-        Assert.Equal(3, options.HistoryLimit);
-        Assert.True(options.PruneHistory);
-    }
-
-    [Fact]
-    public void Parse_RollbackReadsPlanAndForce()
-    {
-        CommandLineOptions options =
-            CommandLineOptions.Parse(["rollback", "--plan", "plan.json", "--force"]);
-
-        Assert.Equal(OutlookResieverCommand.Rollback, options.Command);
-        Assert.Equal("plan.json", options.PlanFile);
-        Assert.True(options.Force);
+        Assert.Contains("Unknown command", exception.Message);
     }
 }

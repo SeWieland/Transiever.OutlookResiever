@@ -7,7 +7,6 @@ namespace Transiever.OutlookResiever.Cli;
 
 public sealed class OutlookResieverCliApplication(
     OutlookExportApplication outlook,
-    SieveRulerApplication sieveRuler,
     ISieveSynchronizationWorkflow synchronization,
     ISieveServerConfigurationProvider configurationProvider,
     IOutlookRunInteraction runInteraction)
@@ -19,12 +18,6 @@ public sealed class OutlookResieverCliApplication(
         {
             OutlookResieverCommand.Run => RunWorkflowAsync(options, cancellationToken),
             OutlookResieverCommand.Export => ExportAsync(options, cancellationToken),
-            OutlookResieverCommand.Generate => GenerateAsync(options, cancellationToken),
-            OutlookResieverCommand.Inspect => InspectAsync(options, cancellationToken),
-            OutlookResieverCommand.Optimize => OptimizeAsync(options, cancellationToken),
-            OutlookResieverCommand.Preview => PreviewAsync(options, cancellationToken),
-            OutlookResieverCommand.Deploy => DeployAsync(options, cancellationToken),
-            OutlookResieverCommand.Rollback => RollbackAsync(options, cancellationToken),
             _ => throw new InvalidOperationException(
                 $"Unsupported command: {options.Command}")
         };
@@ -38,17 +31,6 @@ public sealed class OutlookResieverCliApplication(
             cancellationToken);
         ConsolePresentation.PrintExportDiagnostics(result.Diagnostics);
         PrintExportResult(result);
-        return 0;
-    }
-
-    private async Task<int> GenerateAsync(
-        CommandLineOptions options,
-        CancellationToken cancellationToken)
-    {
-        GenerateSieveResult result = await sieveRuler.GenerateAsync(
-            CreateGenerateRequest(options),
-            cancellationToken);
-        PrintGenerateResult(result);
         return 0;
     }
 
@@ -100,7 +82,7 @@ public sealed class OutlookResieverCliApplication(
 
         if (!runInteraction.ConfirmUpload(
             options.Deploy,
-            preview.TargetScriptName ?? preview.SuggestedScriptName ?? options.PlanFile))
+            preview.TargetScriptName ?? options.PlanFile))
         {
             Console.WriteLine("Deployment skipped. No server changes were made.");
             return 0;
@@ -110,102 +92,11 @@ public sealed class OutlookResieverCliApplication(
             new DeploySynchronizationRequest(
                 configuration,
                 options.PlanFile,
-                options.Activate,
                 HistoryLimit: options.HistoryLimit,
                 PruneHistory: options.PruneHistory),
             cancellationToken);
 
         return PrintDeployResult(deploy);
-    }
-
-    private async Task<int> InspectAsync(
-        CommandLineOptions options,
-        CancellationToken cancellationToken)
-    {
-        InspectRulesResult result = await sieveRuler.InspectAsync(
-            new InspectRulesRequest(options.RulesFile),
-            cancellationToken);
-        RuleInspector.Print(result.Document.Rules, result.SourceFile);
-        return 0;
-    }
-
-    private async Task<int> OptimizeAsync(
-        CommandLineOptions options,
-        CancellationToken cancellationToken)
-    {
-        OptimizeRulesResult result = await sieveRuler.OptimizeAsync(
-            new OptimizeRulesRequest(
-                options.RulesFile,
-                options.OutputFile,
-                options.OptimizationMode ?? RuleOptimizationMode.Conservative,
-                options.DryRun),
-            cancellationToken);
-        if (result.FilesWritten)
-        {
-            Console.WriteLine($"Wrote {result.OutputFile}.");
-        }
-
-        ConsolePresentation.PrintOptimization(result.Optimization);
-        return 0;
-    }
-
-    private async Task<int> PreviewAsync(
-        CommandLineOptions options,
-        CancellationToken cancellationToken)
-    {
-        PreviewSynchronizationResult result = await synchronization.PreviewAsync(
-            new PreviewSynchronizationRequest(
-                configurationProvider.GetConfiguration(),
-                options.RulesFile,
-                options.ReconciledRulesFile,
-                options.CandidateRulesFile,
-                options.ServerSnapshotFile,
-                options.CandidateFile,
-                options.PlanFile,
-                options.AdoptCompatible,
-                options.OptimizationMode,
-                options.DryRun,
-                TargetScriptName: options.ScriptName),
-            cancellationToken);
-        ConsolePresentation.PrintReconciliationDiagnostics(result.Diagnostics);
-
-        return PrintPreviewResult(result, options, includeRulesFile: false);
-    }
-
-    private async Task<int> DeployAsync(
-        CommandLineOptions options,
-        CancellationToken cancellationToken)
-    {
-        DeploySynchronizationResult result = await synchronization.DeployAsync(
-            new DeploySynchronizationRequest(
-                options.DryRun
-                    ? null
-                    : configurationProvider.GetConfiguration(),
-                options.PlanFile,
-                options.Activate,
-                options.DryRun,
-                options.HistoryLimit,
-                options.PruneHistory),
-            cancellationToken);
-
-        return PrintDeployResult(result);
-    }
-
-    private async Task<int> RollbackAsync(
-        CommandLineOptions options,
-        CancellationToken cancellationToken)
-    {
-        RollbackSynchronizationResult result = await synchronization.RollbackAsync(
-            new RollbackSynchronizationRequest(
-                options.DryRun
-                    ? null
-                    : configurationProvider.GetConfiguration(),
-                options.PlanFile,
-                options.Force,
-                options.DryRun),
-            cancellationToken);
-
-        return PrintRollbackResult(result);
     }
 
     private static int PrintDeployResult(DeploySynchronizationResult result)
@@ -244,30 +135,6 @@ public sealed class OutlookResieverCliApplication(
             default:
                 throw new InvalidOperationException(
                     $"Unsupported deployment status: {result.Status}");
-        }
-    }
-
-    private static int PrintRollbackResult(RollbackSynchronizationResult result)
-    {
-        switch (result.Status)
-        {
-            case RollbackSynchronizationStatus.PlanValidated:
-                Console.WriteLine(
-                    $"Rollback plan is valid for target script '{result.TargetScriptName}'. No server changes were made.");
-                return 0;
-            case RollbackSynchronizationStatus.ReactivatedSource:
-                Console.WriteLine(
-                    result.RestoredScriptName is null
-                        ? "Rollback disabled active Sieve processing."
-                        : $"Rollback reactivated '{result.RestoredScriptName}'.");
-                return 0;
-            case RollbackSynchronizationStatus.RestoredBackup:
-                Console.WriteLine(
-                    $"Rollback restored '{result.TargetScriptName}' from backup '{result.BackupScriptName}'.");
-                return 0;
-            default:
-                throw new InvalidOperationException(
-                    $"Unsupported rollback status: {result.Status}");
         }
     }
 
@@ -311,28 +178,6 @@ public sealed class OutlookResieverCliApplication(
                 throw new InvalidOperationException(
                     $"Unsupported preview status: {result.Status}");
         }
-    }
-
-    private static GenerateSieveRequest CreateGenerateRequest(
-        CommandLineOptions options) =>
-        new(
-            options.RulesFile,
-            options.OutputFile,
-            options.SieveFile,
-            options.OptimizationMode,
-            options.DryRun);
-
-    private static void PrintGenerateResult(GenerateSieveResult result)
-    {
-        if (result.Optimization is not null)
-        {
-            ConsolePresentation.PrintOptimization(result.Optimization);
-        }
-
-        Console.WriteLine(
-            result.FilesWritten
-                ? $"Generated {result.SieveFile} from {result.RuleCount} rules."
-                : $"Generated Sieve from {result.RuleCount} rules. No files written.");
     }
 
     private static void PrintExportResult(ExportRulesResult result)

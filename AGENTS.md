@@ -3,8 +3,8 @@
 ## Project
 
 `Transiever.OutlookResiever` is the Windows/classic-Outlook source adapter for
-`Transiever.SieveRuler`. Its `olrx` CLI is a compatibility wrapper over the
-adapter and `Transiever.SieveRuler`.
+`Transiever.SieveRuler`. Its `olrx` CLI exports Outlook rules and runs the
+guided Outlook-to-server workflow.
 
 The repository name is intentionally spelled `OutlookResiever`.
 
@@ -16,7 +16,7 @@ docs/architecture.md
 docs/outlook-export.md
 src/
   Transiever.OutlookResiever/              Outlook COM adapter
-  Transiever.OutlookResiever.Cli/          `olrx` compatibility CLI
+  Transiever.OutlookResiever.Cli/          `olrx` workflow CLI
   Transiever.OutlookResiever.UnitTest/
   Transiever.OutlookResiever.Cli.UnitTest/
 ```
@@ -44,21 +44,17 @@ Do not add Office interop packages. Keep `olrx` Windows/x64 and `[STAThread]`.
 Release COM objects best-effort and return per-rule diagnostics rather than
 aborting the entire export.
 
-Every export writes `Transiever.SieveRuler` schema v2 with `sourceId: "outlook"`.
+Every export writes `Transiever.SieveRuler` schema v1 with `sourceId: "outlook"`.
 Outlook export and folder normalization behavior are documented once in
 `docs/outlook-export.md`.
 
 ## CLI Behavior
 
-Keep `run`, `export`, `inspect`, `optimize`, `generate`, `preview`, `deploy`,
-and `rollback`. `run` is the guided Outlook workflow: export, optional
-optimization, server preview, upload confirmation, and deployment through
-`Transiever.SieveRuler`.
-
-Generic commands delegate to `Transiever.SieveRuler`.
-Preview reads an existing `rules.json` and never exports Outlook rules implicitly.
-SieveRuler deployment, rollback, and history policy remain documented in the
-SieveRuler repository.
+Keep only `run` and `export` in `olrx`.
+`run` is the guided Outlook workflow: export, optional optimization, server
+preview, upload confirmation, and deployment through `Transiever.SieveRuler`.
+Generic rule inspection, optimization, Sieve generation, preview, deployment,
+rollback, and history commands belong to `srtx` in the SieveRuler repository.
 
 Accept `OUTLOOKRESIEVER_SIEVE_*` first and `SIEVERULER_SIEVE_*` as fallback.
 Accept `OUTLOOKRESIEVER_FOLDER_*` for mailbox root overrides such as
