@@ -1,5 +1,8 @@
 using Transiever.OutlookResiever.Services;
 using Transiever.SieveRuler.Services;
+using CommandLineOptions = global::Transiever.OutlookResiever.Cli.CommandLineOptions;
+using EnvironmentSieveServerConfigurationProvider =
+    global::Transiever.OutlookResiever.Cli.EnvironmentSieveServerConfigurationProvider;
 
 namespace Transiever.OutlookResiever.Cli.UnitTest;
 
@@ -7,22 +10,55 @@ namespace Transiever.OutlookResiever.Cli.UnitTest;
 public sealed class ConfigurationProviderTests
 {
     [Fact]
-    public void Provider_PrefersOutlookVariablesOverSieveRulerFallback()
+    public void Provider_ReadsTransieverEnvironment()
     {
-        Set("SIEVERULER", "HOST", "fallback.test");
-        Set("SIEVERULER", "USERNAME", "fallback");
-        Set("SIEVERULER", "PASSWORD", "fallback-password");
-        Set("OUTLOOKRESIEVER", "HOST", "outlook.test");
-        Set("OUTLOOKRESIEVER", "USERNAME", "outlook");
-        Set("OUTLOOKRESIEVER", "PASSWORD", "outlook-password");
+        Clear();
+        Set("HOST", "sieve.test");
+        Set("USERNAME", "user");
+        Set("PASSWORD", "password");
         try
         {
             SieveServerConfiguration configuration =
                 new EnvironmentSieveServerConfigurationProvider()
-                    .GetConfiguration();
+                    .GetConfiguration(CommandLineOptions.Parse(["run"]));
 
-            Assert.Equal("outlook.test", configuration.Host);
-            Assert.Equal("outlook", configuration.UserName);
+            Assert.Equal("sieve.test", configuration.Host);
+            Assert.Equal("user", configuration.UserName);
+        }
+        finally
+        {
+            Clear();
+        }
+    }
+
+    [Fact]
+    public void Provider_PrefersCommandLineOptionsOverEnvironment()
+    {
+        Clear();
+        Set("HOST", "env.test");
+        Set("USERNAME", "env-user");
+        Set("PASSWORD", "env-password");
+        try
+        {
+            CommandLineOptions options = CommandLineOptions.Parse(
+                [
+                    "run",
+                    "--sieve-host", "cli.test",
+                    "--sieve-port", "4191",
+                    "--sieve-username", "cli-user",
+                    "--sieve-password", "cli-password",
+                    "--sieve-security-mode", "ImplicitTls"
+                ]);
+
+            SieveServerConfiguration configuration =
+                new EnvironmentSieveServerConfigurationProvider()
+                    .GetConfiguration(options);
+
+            Assert.Equal("cli.test", configuration.Host);
+            Assert.Equal(4191, configuration.Port);
+            Assert.Equal("cli-user", configuration.UserName);
+            Assert.Equal("cli-password", configuration.Password);
+            Assert.Equal(SieveConnectionSecurity.ImplicitTls, configuration.Security);
         }
         finally
         {
@@ -48,21 +84,25 @@ public sealed class ConfigurationProviderTests
         }
     }
 
-    private static void Set(string prefix, string suffix, string value) =>
+    private static void Set(string suffix, string value) =>
         Environment.SetEnvironmentVariable(
-            $"{prefix}_SIEVE_{suffix}",
+            $"TRANSIEVER_SIEVE_{suffix}",
             value);
 
     private static void Clear()
     {
-        foreach (string prefix in new[] { "OUTLOOKRESIEVER", "SIEVERULER" })
+        foreach (string suffix in new[]
         {
-            foreach (string suffix in new[] { "HOST", "USERNAME", "PASSWORD" })
-            {
-                Environment.SetEnvironmentVariable(
-                    $"{prefix}_SIEVE_{suffix}",
-                    null);
-            }
+            "HOST",
+            "USERNAME",
+            "PASSWORD",
+            "PORT",
+            "SECURITY_MODE"
+        })
+        {
+            Environment.SetEnvironmentVariable(
+                $"TRANSIEVER_SIEVE_{suffix}",
+                null);
         }
     }
 }

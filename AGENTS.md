@@ -42,6 +42,8 @@ Keep `olrx` Windows/x64 and `[STAThread]`.
 Release COM objects best-effort and return per-rule diagnostics instead of aborting the entire export.
 
 Every export writes `Transiever.SieveRuler` schema v1 with `sourceId: "outlook"`.
+Map only stable receive-rule semantics into SieveRuler rules.
+Unsupported enabled Outlook rule conditions and actions must become export diagnostics with official Outlook enum names when known.
 Outlook export and folder normalization behavior are documented once in `docs/outlook-export.md`.
 
 ## CLI Behavior
@@ -52,7 +54,8 @@ It exports, optionally optimizes, previews the server, confirms upload, and depl
 Generic rule inspection, optimization, Sieve generation, preview, deployment, rollback, and history commands belong to `srtx`.
 The `srtx` command lives in the SieveRuler repository.
 
-Accept `OUTLOOKRESIEVER_SIEVE_*` first and `SIEVERULER_SIEVE_*` as fallback.
+Accept `TRANSIEVER_SIEVE_*` for shared ManageSieve server configuration.
+Accept `--sieve-*` CLI options as command-level overrides.
 Accept `OUTLOOKRESIEVER_FOLDER_*` for mailbox root overrides such as `OUTLOOKRESIEVER_FOLDER_JUNK`.
 Running without a command displays help without accessing Outlook, files, or network.
 

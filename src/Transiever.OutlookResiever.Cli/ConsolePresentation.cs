@@ -20,6 +20,11 @@ public static class ConsolePresentation
         Console.WriteLine("  --server-snapshot <file>  Downloaded active script.");
         Console.WriteLine("  --plan <file>             Deployment plan.");
         Console.WriteLine("  --script-name <name>      Override the preview target script name.");
+        Console.WriteLine("  --sieve-host <host>       ManageSieve host override.");
+        Console.WriteLine("  --sieve-port <port>       ManageSieve port override.");
+        Console.WriteLine("  --sieve-username <name>   ManageSieve username override.");
+        Console.WriteLine("  --sieve-password <value>  ManageSieve password override.");
+        Console.WriteLine("  --sieve-security-mode <mode> ManageSieve security mode override.");
         Console.WriteLine("  --adopt-compatible        Adopt compatible external rules.");
         Console.WriteLine("  --preserve-compatible     Preserve compatible external rules.");
         Console.WriteLine("  --deploy                  In run, upload and activate after preview without prompting.");
@@ -44,7 +49,7 @@ public static class ConsolePresentation
         foreach (OutlookRuleExportDiagnostic diagnostic in diagnostics)
         {
             Console.WriteLine(
-                $"Skipping rule '{diagnostic.RuleName}': {diagnostic.Message}");
+                $"Rule '{diagnostic.RuleName}': {diagnostic.Message}");
         }
     }
 

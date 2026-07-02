@@ -15,7 +15,7 @@ Classic Outlook COM
     -> Transiever.ManageSieve
 ```
 
-`Transiever.OutlookResiever` owns discovery and mapping of supported classic Outlook rules.
+`Transiever.OutlookResiever` owns discovery and stable receive-rule mapping for supported classic Outlook rules.
 `Transiever.SieveRuler` owns these concerns:
 
 * The JSON contract.
@@ -33,13 +33,13 @@ It exports Outlook rules, chooses optimization when interactive, previews server
 Its `export` command is local.
 Use `srtx` for generic inspection, optimization, Sieve generation, preview, deployment, rollback, and history commands.
 
-The CLI accepts `OUTLOOKRESIEVER_SIEVE_*` configuration and falls back to `SIEVERULER_SIEVE_*`.
-Outlook-specific variables take precedence.
+The CLI accepts shared `TRANSIEVER_SIEVE_*` configuration.
+Command-line `--sieve-*` options override those values for targeted runs.
 
 ## Canonical References
 
 Use the focused docs instead of restating the same policy in multiple places:
 
-* [outlook-export](outlook-export.md) for COM access, folder normalization, and source document behavior.
+* [outlook-export](outlook-export.md) for COM access, rule mapping, folder normalization, and source document behavior.
 * [CLI guide](../src/Transiever.OutlookResiever.Cli/README.md) for command-facing behavior and operator configuration.
 * SieveRuler's synchronization policy for preview, deployment, rollback, and retained-history semantics.

@@ -4,20 +4,20 @@ namespace Transiever.OutlookResiever.Cli;
 
 public interface ISieveServerConfigurationProvider
 {
-    SieveServerConfiguration GetConfiguration();
+    SieveServerConfiguration GetConfiguration(CommandLineOptions options);
 }
 
 public sealed class EnvironmentSieveServerConfigurationProvider
     : ISieveServerConfigurationProvider
 {
-    public SieveServerConfiguration GetConfiguration()
+    public SieveServerConfiguration GetConfiguration(CommandLineOptions options)
     {
-        string host = Required("HOST");
-        string userName = Required("USERNAME");
-        string password = Read("PASSWORD") ?? ReadPassword();
-        int port = int.TryParse(Read("PORT"), out int configuredPort)
+        string host = options.SieveHost ?? Required("HOST");
+        string userName = options.SieveUserName ?? Required("USERNAME");
+        string password = options.SievePassword ?? Read("PASSWORD") ?? ReadPassword();
+        int port = options.SievePort ?? (int.TryParse(Read("PORT"), out int configuredPort)
             ? configuredPort
-            : SieveServerConfiguration.DefaultPort;
+            : SieveServerConfiguration.DefaultPort);
         string? configuredSecurity = Read("SECURITY_MODE");
         if (configuredSecurity?.Equals(
             "PlainText",
@@ -33,6 +33,7 @@ public sealed class EnvironmentSieveServerConfigurationProvider
             out SieveConnectionSecurity configuredMode)
             ? configuredMode
             : SieveConnectionSecurity.StartTlsRequired;
+        security = options.SieveSecurity ?? security;
         return new SieveServerConfiguration(
             host,
             port,
@@ -45,18 +46,17 @@ public sealed class EnvironmentSieveServerConfigurationProvider
         Read(suffix) is { Length: > 0 } value
             ? value
             : throw new InvalidOperationException(
-                $"Environment variable OUTLOOKRESIEVER_SIEVE_{suffix} or SIEVERULER_SIEVE_{suffix} is required.");
+                $"Environment variable TRANSIEVER_SIEVE_{suffix} is required.");
 
     private static string? Read(string suffix) =>
-        Environment.GetEnvironmentVariable($"OUTLOOKRESIEVER_SIEVE_{suffix}")
-        ?? Environment.GetEnvironmentVariable($"SIEVERULER_SIEVE_{suffix}");
+        Environment.GetEnvironmentVariable($"TRANSIEVER_SIEVE_{suffix}");
 
     private static string ReadPassword()
     {
         if (Console.IsInputRedirected)
         {
             throw new InvalidOperationException(
-                "OUTLOOKRESIEVER_SIEVE_PASSWORD or SIEVERULER_SIEVE_PASSWORD is required when input is redirected.");
+                "TRANSIEVER_SIEVE_PASSWORD is required when input is redirected.");
         }
 
         Console.Write("ManageSieve password: ");

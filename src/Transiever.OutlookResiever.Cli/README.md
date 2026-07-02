@@ -53,6 +53,8 @@ olrx run --no-prune-history
 
 Available optimization modes are `conservative`, `balanced`, and `aggressive`.
 The short forms are `-o`, `-oo`, and `-ooo`.
+Optimization here means reducing duplicate generated rules before preview and deployment.
+Mode semantics are owned by SieveRuler and documented in the [SieveRuler CLI optimization modes](../../../SieveRuler/src/Transiever.SieveRuler.Cli/README.md#optimization-modes).
 
 Generic inspection, optimization, Sieve generation, preview, deployment, rollback, and history commands live in `srtx`.
 
@@ -61,21 +63,19 @@ Generic inspection, optimization, Sieve generation, preview, deployment, rollbac
 Configure ManageSieve through environment variables:
 
 ```text
-OUTLOOKRESIEVER_SIEVE_HOST=sieve.example.com
-OUTLOOKRESIEVER_SIEVE_PORT=4190
-OUTLOOKRESIEVER_SIEVE_USERNAME=user@example.com
-OUTLOOKRESIEVER_SIEVE_PASSWORD=secret
-OUTLOOKRESIEVER_SIEVE_SECURITY_MODE=StartTlsRequired
+TRANSIEVER_SIEVE_HOST=sieve.example.com
+TRANSIEVER_SIEVE_PORT=4190
+TRANSIEVER_SIEVE_USERNAME=user@example.com
+TRANSIEVER_SIEVE_PASSWORD=secret
+TRANSIEVER_SIEVE_SECURITY_MODE=StartTlsRequired
 ```
 
+Use `--sieve-host`, `--sieve-port`, `--sieve-username`, `--sieve-password`, and `--sieve-security-mode` to override those values for a targeted command.
 The port and security mode are optional.
 The default is port 4190 with required STARTTLS.
 `ImplicitTls` is also supported.
 Plaintext authentication is refused.
 If the password variable is absent, an interactive terminal prompts without echoing it.
-
-The equivalent `SIEVERULER_SIEVE_*` variables are accepted as fallback.
-`OUTLOOKRESIEVER_SIEVE_*` takes precedence.
 
 ## Review Artifacts
 
@@ -124,9 +124,11 @@ OUTLOOKRESIEVER_FOLDER_ARCHIVE=Archive
 
 ## Supported Rule Subset
 
-The SieveRuler model supports sender, recipient, subject, body, and subject-or-body contains conditions with `All` and `Any` combinations.
-Generated actions move messages to a folder.
+`olrx` exports enabled Outlook receive rules whose server-side meaning maps cleanly to Sieve.
+Supported conditions and exceptions include sender, recipient, subject, body, subject-or-body, and has-attachment tests.
+Supported actions include move, copy, redirect, mark-read, delete-to-Trash, and stop processing.
 
 Only SieveRuler's strict compatible Sieve subset is imported semantically.
 Unsupported and user-authored Sieve content is retained without rewriting.
-Review target folder names, optimization diagnostics, and server capabilities before deployment.
+Unsupported enabled Outlook shapes are reported as diagnostics.
+Review target folder names, redirect recipients, mark-read behavior, optimization diagnostics, and server capabilities before deployment.

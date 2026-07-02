@@ -28,6 +28,38 @@ Every export writes a `Transiever.SieveRuler` schema v1 document with `sourceId:
 The `run` workflow exports Outlook rules to `rules.json`.
 Server reconciliation never overwrites the source document with server state.
 
+## Rule Mapping
+
+Only enabled receive rules are exported.
+Send rules are reported as diagnostics.
+
+Supported Outlook conditions and exceptions map to SieveRuler conditions:
+
+* `olConditionFrom` maps sender recipients to `SenderContains`.
+* `olConditionSenderAddress` maps sender text to `SenderContains`.
+* `olConditionSentTo` maps recipient entries to `ReceiverContains`.
+* `olConditionRecipientAddress` maps recipient text to `ReceiverContains`.
+* `olConditionSubject` maps text to `SubjectContains`.
+* `olConditionBody` maps text to `BodyContains`.
+* `olConditionBodyOrSubject` maps text to `SubjectOrBodyContains`.
+* `olConditionHasAttachment` maps to `HasAttachment`.
+
+Outlook exceptions are exported into the SieveRuler `exceptions` collection.
+Generated Sieve treats them as blocking tests.
+
+Supported Outlook actions map to explicit SieveRuler actions:
+
+* `olRuleActionMoveToFolder` maps to `FileInto` and also fills the simple `targetFolder` shortcut.
+* `olRuleActionCopyToFolder` maps to `CopyInto`.
+* `olRuleActionDelete` maps to `FileInto` for the Trash default folder.
+* `olRuleActionRedirect` maps recipients to `Redirect`.
+* `olRuleActionMarkRead` maps to `SetFlags` with `\Seen`.
+* `olRuleActionStop` maps to `Stop`.
+
+Permanent delete is intentionally not mapped.
+Client-only and unsafe Outlook behavior is reported as diagnostics instead of approximated in Sieve.
+This includes scripts, applications, sounds, alerts, printing, categories, importance, sensitivity, RSS, address-book membership, local-machine rules, unsupported send-rule actions, and wizard-only conditions.
+
 ## Folder Normalization
 
 Folder paths are normalized during Outlook export.

@@ -48,7 +48,7 @@ public sealed class OutlookResieverCliApplication(
             options.OptimizationMode,
             options.OptimizationChoiceSpecified);
         SieveServerConfiguration configuration =
-            configurationProvider.GetConfiguration();
+            configurationProvider.GetConfiguration(options);
         PreviewSynchronizationResult preview = await synchronization.PreviewAsync(
             new PreviewSynchronizationRequest(
                 configuration,

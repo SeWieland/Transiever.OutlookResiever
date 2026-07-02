@@ -25,6 +25,27 @@ internal static class OutlookCom
             yield break;
         }
 
+        dynamic dynValue = value;
+        if (TryGetInt(() => dynValue.Count, out int count))
+        {
+            for (var index = 1; index <= count; index++)
+            {
+                object? item = null;
+                try
+                {
+                    item = dynValue.Item(index);
+                }
+                catch
+                {
+                    yield break;
+                }
+
+                yield return item;
+            }
+
+            yield break;
+        }
+
         yield return value;
     }
 
@@ -56,6 +77,39 @@ internal static class OutlookCom
         catch
         {
             return "";
+        }
+    }
+
+    public static int SafeInt(Func<object?> getter, int fallback = 0)
+    {
+        try
+        {
+            var value = getter();
+
+            return value switch
+            {
+                int i => i,
+                null => fallback,
+                _ => Convert.ToInt32(value)
+            };
+        }
+        catch
+        {
+            return fallback;
+        }
+    }
+
+    private static bool TryGetInt(Func<object?> getter, out int result)
+    {
+        try
+        {
+            result = Convert.ToInt32(getter());
+            return true;
+        }
+        catch
+        {
+            result = 0;
+            return false;
         }
     }
 

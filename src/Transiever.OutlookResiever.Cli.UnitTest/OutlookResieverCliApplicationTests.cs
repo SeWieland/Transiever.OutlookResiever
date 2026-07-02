@@ -228,7 +228,7 @@ public sealed class OutlookResieverCliApplicationTests
 
     private sealed class FakeConfigurationProvider : ISieveServerConfigurationProvider
     {
-        public SieveServerConfiguration GetConfiguration() =>
+        public SieveServerConfiguration GetConfiguration(CommandLineOptions options) =>
             new(
                 "localhost",
                 SieveServerConfiguration.DefaultPort,

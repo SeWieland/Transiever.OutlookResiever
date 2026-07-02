@@ -33,8 +33,9 @@ src/Transiever.OutlookResiever.Cli.UnitTest/ CLI tests
 
 * Late-bound classic Outlook COM rule export.
 * `Transiever.SieveRuler` schema v1 output with `sourceId: "outlook"`.
+* Stable receive-rule mapping for server-side Sieve conditions, actions, and exceptions.
 * Folder display path normalization for IMAP/Sieve mailbox names.
-* `olrx export` and the guided `olrx run` synchronization workflow.
+* `olrx export` and the guided `olrx run` synchronization workflow, including optional duplicate-rule reduction through [optimization](../SieveRuler/src/Transiever.SieveRuler.Cli/README.md#optimization-modes).
 
 Operational details live in the linked component guides instead of being repeated here.
 
