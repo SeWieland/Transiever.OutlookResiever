@@ -14,11 +14,15 @@
   <PropertyGroup>
     <Title>Transiever.OutlookResiever application engine</Title>
     <Description>Classic Outlook rule source adapter for Transiever.SieveRuler.</Description>
+    <SieveRulerProject>..\..\..\SieveRuler\src\Transiever.SieveRuler\Transiever.SieveRuler.csproj</SieveRulerProject>
   </PropertyGroup>
 
-  <ItemGroup>
-    <!-- Temporary until SieveRuler is published as a versioned NuGet package. -->
-    <ProjectReference Include="..\..\..\SieveRuler\src\Transiever.SieveRuler\Transiever.SieveRuler.csproj" />
+  <ItemGroup Condition="Exists('$(SieveRulerProject)')">
+    <ProjectReference Include="$(SieveRulerProject)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="!Exists('$(SieveRulerProject)')">
+    <PackageReference Include="Transiever.SieveRuler" Version="1.0.0-beta.1" />
   </ItemGroup>
 
 </Project>

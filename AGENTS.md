@@ -25,7 +25,7 @@ Keep only Outlook COM access, Outlook mapping, folder normalization, and export 
 
 The adapter temporarily references the sibling `Transiever.SieveRuler` project.
 The CLI references both the adapter and `Transiever.SieveRuler`.
-Replace these with versioned package references before publication.
+Published standalone builds fall back to the versioned `Transiever.SieveRuler` package when the sibling checkout is absent.
 
 ## Outlook Constraints
 
@@ -69,3 +69,21 @@ dotnet run --project src/Transiever.OutlookResiever.Cli -- --help
 
 Update this file, both READMEs, architecture, and Outlook export docs when their contracts change.
 Unit tests must not require Outlook or credentials.
+
+## GitHub CI and Releases
+
+GitHub Actions are repository-local because this repository must publish and build independently from the umbrella workspace.
+
+`ci.yml` runs restore, Release build, and tests on pull requests and pushes to `main` and `dev`.
+It runs on Windows because `olrx` and the adapter target `net10.0-windows`.
+Unit tests must not require Outlook COM or a configured Outlook profile.
+
+`pr-title.yml` validates pull request titles as Conventional Commits so squash merges can drive semantic-release versioning.
+
+`release.yml` is manual only.
+Run it from `main` for stable releases and from `dev` for `beta` prereleases.
+It publishes GitHub Release assets only.
+It does not publish NuGet packages.
+
+The release attaches a self-contained `olrx` CLI asset for `win-x64` only.
+Do not add Linux or Windows x86 assets unless the Outlook COM boundary is removed or replaced.

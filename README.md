@@ -49,5 +49,12 @@ dotnet run --project src/Transiever.OutlookResiever.Cli -- --help
 
 ## Publication Note
 
-The current development build references the sibling `Transiever.SieveRuler` project.
-Published builds must use a versioned package reference.
+GitHub Actions produce releases.
+Stable releases come from `main`.
+Beta prereleases come from `dev` and may be unstable.
+
+Releases attach a self-contained `olrx` asset for `win-x64`.
+`olrx` is Windows x64 only because it targets classic Outlook COM.
+
+Local umbrella development uses the sibling `Transiever.SieveRuler` project when present.
+Standalone published builds fall back to the versioned NuGet package.

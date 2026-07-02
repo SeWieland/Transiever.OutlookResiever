@@ -14,11 +14,19 @@
   <PropertyGroup>
     <Title>olrx</Title>
     <Description>Command-line interface for Transiever.OutlookResiever.</Description>
+    <SieveRulerProject>..\..\..\SieveRuler\src\Transiever.SieveRuler\Transiever.SieveRuler.csproj</SieveRulerProject>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Transiever.OutlookResiever\Transiever.OutlookResiever.csproj" />
-    <ProjectReference Include="..\..\..\SieveRuler\src\Transiever.SieveRuler\Transiever.SieveRuler.csproj" />
+  </ItemGroup>
+
+  <ItemGroup Condition="Exists('$(SieveRulerProject)')">
+    <ProjectReference Include="$(SieveRulerProject)" />
+  </ItemGroup>
+
+  <ItemGroup Condition="!Exists('$(SieveRulerProject)')">
+    <PackageReference Include="Transiever.SieveRuler" Version="1.0.0-beta.1" />
   </ItemGroup>
 
 </Project>

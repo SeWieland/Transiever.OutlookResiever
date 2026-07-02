@@ -24,6 +24,9 @@ dotnet run --project src/Transiever.OutlookResiever.Cli --
 
 for `olrx` in the examples below.
 
+GitHub releases attach a self-contained `olrx` asset for `win-x64`.
+No Linux or Windows x86 assets are produced because `olrx` targets classic Outlook COM.
+
 ## Commands
 
 ```bash

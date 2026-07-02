@@ -1,5 +1,7 @@
 .vscode/
+artifacts/
 bin/
+node_modules/
 obj/
 **/reconciled-rules.json
 **/candidate-rules.json
