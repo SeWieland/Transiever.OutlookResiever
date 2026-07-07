@@ -55,6 +55,3 @@ Beta prereleases come from `dev` and may be unstable.
 
 Releases attach a self-contained `olrx` asset for `win-x64`.
 `olrx` is Windows x64 only because it targets classic Outlook COM.
-
-Local umbrella development uses the sibling `Transiever.SieveRuler` project when present.
-Standalone published builds fall back to the versioned NuGet package.

@@ -15,6 +15,3 @@ Repository boundaries are documented in [../../docs/architecture.md](../../docs/
 
 The adapter must not implement JSON schemas, optimization, Sieve parsing or generation, reconciliation, ManageSieve, or deployment policy.
 Those belong to SieveRuler.
-
-Local umbrella development uses the sibling SieveRuler project when present.
-Standalone published builds fall back to the versioned `Transiever.SieveRuler` NuGet package.

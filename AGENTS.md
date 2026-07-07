@@ -23,7 +23,7 @@ src/
 ```
 
 The adapter temporarily references the sibling `Transiever.SieveRuler` project during local umbrella development.
-Published standalone builds fall back to the versioned `Transiever.SieveRuler` package when the sibling checkout is absent.
+Published standalone builds fall back to `Transiever.SieveRuler`nuget packages when the sibling checkout is absent.
 
 ## Canonical Docs
 
@@ -83,4 +83,5 @@ Keep documentation accurate, but do not duplicate the same contract across every
 
 GitHub Actions are repository-local and run on Windows because `olrx` targets `net10.0-windows`.
 Releases are manual, stable from `main`, and `beta` from `dev`.
+CI and release validation must include package dependency mode with `SieveRulerProject` forced missing.
 They attach a self-contained `olrx` asset for `win-x64` only.
