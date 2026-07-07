@@ -1,9 +1,6 @@
 # Transiever.OutlookResiever Architecture
 
 This document is the canonical description of the OutlookResiever system boundary and dependency direction.
-The root [README](../README.md) is the repo entry point.
-The CLI guide lives in [../src/Transiever.OutlookResiever.Cli/README.md](../src/Transiever.OutlookResiever.Cli/README.md).
-Outlook export details live in [outlook-export](outlook-export.md).
 
 ## Boundary
 
@@ -26,17 +23,7 @@ Classic Outlook COM
 * Deployment policy.
 `Transiever.ManageSieve` owns ManageSieve protocol execution.
 
-`olrx` is a Windows/x64 workflow CLI.
-Its `run` command is the guided Outlook workflow:
-It exports Outlook rules, chooses optimization when interactive, previews server reconciliation, and asks before deployment.
-
-Its `export` command is local.
-Use `srtx` for generic inspection, optimization, Sieve generation, preview, deployment, rollback, and history commands.
-
-The CLI accepts shared `TRANSIEVER_SIEVE_*` configuration.
-Command-line `--sieve-*` options override those values for targeted runs.
-
-## Canonical References
+## Focused Docs
 
 Use the focused docs instead of restating the same policy in multiple places:
 

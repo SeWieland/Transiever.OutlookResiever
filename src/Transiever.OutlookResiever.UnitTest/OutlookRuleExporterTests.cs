@@ -46,22 +46,22 @@ public sealed class OutlookRuleExporterTests
             action =>
             {
                 Assert.Equal(RuleActionType.SetFlags, action.Type);
-                Assert.Equal(["\\Seen"], action.GetValues());
+                Assert.Equal(["\\Seen"], action.Values);
             },
             action =>
             {
                 Assert.Equal(RuleActionType.FileInto, action.Type);
-                Assert.Equal(["INBOX/Projects"], action.GetValues());
+                Assert.Equal(["INBOX/Projects"], action.Values);
             },
             action =>
             {
                 Assert.Equal(RuleActionType.CopyInto, action.Type);
-                Assert.Equal(["Archive/Projects"], action.GetValues());
+                Assert.Equal(["Archive/Projects"], action.Values);
             },
             action =>
             {
                 Assert.Equal(RuleActionType.Redirect, action.Type);
-                Assert.Equal(["archive@example.com"], action.GetValues());
+                Assert.Equal(["archive@example.com"], action.Values);
             },
             action => Assert.Equal(RuleActionType.Stop, action.Type));
     }

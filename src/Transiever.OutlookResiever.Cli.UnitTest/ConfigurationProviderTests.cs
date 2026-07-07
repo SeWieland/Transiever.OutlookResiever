@@ -1,8 +1,5 @@
 using Transiever.OutlookResiever.Services;
 using Transiever.SieveRuler.Services;
-using CommandLineOptions = global::Transiever.OutlookResiever.Cli.CommandLineOptions;
-using EnvironmentSieveServerConfigurationProvider =
-    global::Transiever.OutlookResiever.Cli.EnvironmentSieveServerConfigurationProvider;
 
 namespace Transiever.OutlookResiever.Cli.UnitTest;
 

@@ -1,4 +1,3 @@
-using Transiever.OutlookResiever.Application;
 using Transiever.OutlookResiever.Services;
 using Transiever.SieveRuler.Models;
 
