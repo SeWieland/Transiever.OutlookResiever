@@ -34,6 +34,8 @@ public sealed class CommandLineOptions
 
     public bool DryRun { get; private init; }
 
+    public bool WriteArtifacts { get; private init; }
+
     public int HistoryLimit { get; private init; } = 5;
 
     public bool PruneHistory { get; private init; } = true;
@@ -82,8 +84,11 @@ public sealed class CommandLineOptions
         bool? adoptCompatible = null;
         var deploy = false;
         var dryRun = false;
+        var writeArtifacts = false;
         var historyLimit = 5;
         var pruneHistory = true;
+        var artifactPathSpecified = false;
+        var rollbackUnsupportedOptionSpecified = false;
         string? sieveHost = null;
         int? sievePort = null;
         string? sieveUserName = null;
@@ -98,42 +103,58 @@ public sealed class CommandLineOptions
             {
                 case "--rules":
                     rulesFile = ReadOptionValue(args, ref index, option);
+                    artifactPathSpecified = true;
+                    rollbackUnsupportedOptionSpecified |= command == OutlookResieverCommand.Rollback;
                     break;
 
                 case "--candidate":
                     candidateFile = ReadOptionValue(args, ref index, option);
+                    artifactPathSpecified = true;
+                    rollbackUnsupportedOptionSpecified |= command == OutlookResieverCommand.Rollback;
                     break;
 
                 case "--reconciled-rules":
                     reconciledRulesFile = ReadOptionValue(args, ref index, option);
+                    artifactPathSpecified = true;
+                    rollbackUnsupportedOptionSpecified |= command == OutlookResieverCommand.Rollback;
                     break;
 
                 case "--candidate-rules":
                     candidateRulesFile = ReadOptionValue(args, ref index, option);
+                    artifactPathSpecified = true;
+                    rollbackUnsupportedOptionSpecified |= command == OutlookResieverCommand.Rollback;
                     break;
 
                 case "--server-snapshot":
                     serverSnapshotFile = ReadOptionValue(args, ref index, option);
+                    artifactPathSpecified = true;
+                    rollbackUnsupportedOptionSpecified |= command == OutlookResieverCommand.Rollback;
                     break;
 
                 case "--plan":
                     planFile = ReadOptionValue(args, ref index, option);
+                    artifactPathSpecified = true;
+                    rollbackUnsupportedOptionSpecified |= command == OutlookResieverCommand.Rollback;
                     break;
 
                 case "--script-name":
                     scriptName = ReadOptionValue(args, ref index, option);
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--adopt-compatible":
                     adoptCompatible = true;
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--preserve-compatible":
                     adoptCompatible = false;
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--deploy":
                     deploy = true;
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--optimize":
@@ -142,38 +163,54 @@ public sealed class CommandLineOptions
                         ref index,
                         RuleOptimizationMode.Conservative);
                     optimizationChoiceSpecified = true;
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--no-optimize":
                     optimizationMode = null;
                     optimizationChoiceSpecified = true;
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--optimize-conservative":
                     optimizationMode = RuleOptimizationMode.Conservative;
                     optimizationChoiceSpecified = true;
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--optimize-balanced":
                     optimizationMode = RuleOptimizationMode.Balanced;
                     optimizationChoiceSpecified = true;
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--optimize-aggressive":
                     optimizationMode = RuleOptimizationMode.Aggressive;
                     optimizationChoiceSpecified = true;
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--dry-run":
                     dryRun = true;
                     break;
 
+                case "--write-artifacts":
+                    writeArtifacts = true;
+                    if (command != OutlookResieverCommand.Run)
+                    {
+                        rollbackUnsupportedOptionSpecified = true;
+                    }
+
+                    break;
+
                 case "--history-limit":
                     historyLimit = ReadNonNegativeIntOption(args, ref index, option);
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--no-prune-history":
                     pruneHistory = false;
+                    rollbackUnsupportedOptionSpecified = true;
                     break;
 
                 case "--sieve-host":
@@ -206,6 +243,7 @@ public sealed class CommandLineOptions
                     {
                         optimizationMode = shorthandMode;
                         optimizationChoiceSpecified = true;
+                        rollbackUnsupportedOptionSpecified = true;
                         break;
                     }
 
@@ -213,6 +251,21 @@ public sealed class CommandLineOptions
             }
 
             index++;
+        }
+
+        if (command == OutlookResieverCommand.Run &&
+            artifactPathSpecified &&
+            !writeArtifacts)
+        {
+            throw new ArgumentException(
+                "Artifact path options require --write-artifacts for olrx run.");
+        }
+
+        if (command == OutlookResieverCommand.Rollback &&
+            rollbackUnsupportedOptionSpecified)
+        {
+            throw new ArgumentException(
+                "olrx rollback only accepts --dry-run and --sieve-* options.");
         }
 
         return new CommandLineOptions
@@ -230,6 +283,7 @@ public sealed class CommandLineOptions
             AdoptCompatible = adoptCompatible,
             Deploy = deploy,
             DryRun = dryRun,
+            WriteArtifacts = writeArtifacts,
             HistoryLimit = historyLimit,
             PruneHistory = pruneHistory,
             SieveHost = sieveHost,
@@ -246,6 +300,7 @@ public sealed class CommandLineOptions
         {
             "run" => OutlookResieverCommand.Run,
             "export" => OutlookResieverCommand.Export,
+            "rollback" => OutlookResieverCommand.Rollback,
             _ => null
         };
     }

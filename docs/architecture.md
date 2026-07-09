@@ -13,6 +13,7 @@ Classic Outlook COM
 ```
 
 `Transiever.OutlookResiever` owns discovery and stable receive-rule mapping for supported classic Outlook rules.
+Its CLI may wrap SieveRuler's synchronization workflow for the guided Outlook-to-server run and latest-backup rollback.
 `Transiever.SieveRuler` owns these concerns:
 
 * The JSON contract.
@@ -21,6 +22,7 @@ Classic Outlook COM
 * Reconciliation and preservation.
 * Review artifacts.
 * Deployment policy.
+* Generic rollback and retained-history policy.
 `Transiever.ManageSieve` owns ManageSieve protocol execution.
 
 ## Focused Docs

@@ -67,8 +67,9 @@ Every export writes `Transiever.SieveRuler` schema v1 with `sourceId: "outlook"`
 Map only stable receive-rule semantics into SieveRuler rules.
 Unsupported enabled Outlook rule conditions and actions must become export diagnostics with official Outlook enum names when known.
 
-Keep only `run` and `export` in `olrx`.
-Generic rule inspection, optimization, Sieve generation, preview, deployment, rollback, and history commands belong to `srtx`.
+Keep only `run`, `rollback`, and `export` in `olrx`.
+`rollback` restores the newest inactive SieveRuler server-side backup.
+Generic rule inspection, optimization, Sieve generation, preview, deployment-plan rollback, and history commands belong to `srtx`.
 
 Accept `TRANSIEVER_SIEVE_*` for shared ManageSieve server configuration.
 Accept `--sieve-*` CLI options as command-level overrides.

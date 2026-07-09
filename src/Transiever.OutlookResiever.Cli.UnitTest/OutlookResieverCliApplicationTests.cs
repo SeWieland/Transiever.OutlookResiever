@@ -26,10 +26,9 @@ public sealed class OutlookResieverCliApplicationTests
                 exporter,
                 synchronization,
                 interaction);
-            string rulesFile = Path.Combine(directory, "rules.json");
 
             int exitCode = await application.RunAsync(
-                CommandLineOptions.Parse(["run", "--rules", rulesFile]),
+                CommandLineOptions.Parse(["run"]),
                 TestContext.Current.CancellationToken);
 
             Assert.Equal(0, exitCode);
@@ -37,12 +36,47 @@ public sealed class OutlookResieverCliApplicationTests
             Assert.Equal(1, synchronization.PreviewCount);
             Assert.Equal(0, synchronization.DeployCount);
             Assert.NotNull(synchronization.LastPreviewRequest?.SourceDocument);
+            Assert.False(synchronization.LastPreviewRequest?.WriteArtifacts);
             Assert.Equal(
                 RuleOptimizationMode.Balanced,
                 synchronization.LastPreviewRequest?.OptimizationMode);
             Assert.False(interaction.LastExplicitOptimizationChoice);
             Assert.False(interaction.LastExplicitDeploy);
+        }
+        finally
+        {
+            Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [Fact]
+    public async Task Run_WriteArtifactsWritesExportRulesFile()
+    {
+        string directory = CreateDirectory();
+
+        try
+        {
+            var exporter = new FakeExporter();
+            var synchronization = new FakeSynchronization();
+            var interaction = new FakeRunInteraction
+            {
+                OptimizationResult = RuleOptimizationMode.Balanced,
+                UploadResult = false
+            };
+            OutlookResieverCliApplication application = CreateApplication(
+                exporter,
+                synchronization,
+                interaction);
+            string rulesFile = Path.Combine(directory, "rules.json");
+
+            int exitCode = await application.RunAsync(
+                CommandLineOptions.Parse(
+                    ["run", "--write-artifacts", "--rules", rulesFile]),
+                TestContext.Current.CancellationToken);
+
+            Assert.Equal(0, exitCode);
             Assert.True(File.Exists(rulesFile));
+            Assert.True(synchronization.LastPreviewRequest?.WriteArtifacts);
         }
         finally
         {
@@ -72,7 +106,6 @@ public sealed class OutlookResieverCliApplicationTests
                 CommandLineOptions.Parse(
                     [
                         "run",
-                        "--rules", Path.Combine(directory, "rules.json"),
                         "--no-optimize",
                         "--deploy",
                         "--history-limit", "3"
@@ -83,11 +116,32 @@ public sealed class OutlookResieverCliApplicationTests
             Assert.Equal(1, synchronization.DeployCount);
             Assert.True(interaction.LastExplicitDeploy);
             Assert.Equal(3, synchronization.LastDeployRequest?.HistoryLimit);
+            Assert.NotNull(synchronization.LastDeployRequest?.Plan);
         }
         finally
         {
             Directory.Delete(directory, recursive: true);
         }
+    }
+
+    [Fact]
+    public async Task Rollback_RestoresLatestServerBackup()
+    {
+        var exporter = new FakeExporter();
+        var synchronization = new FakeSynchronization();
+        var interaction = new FakeRunInteraction();
+        OutlookResieverCliApplication application = CreateApplication(
+            exporter,
+            synchronization,
+            interaction);
+
+        int exitCode = await application.RunAsync(
+            CommandLineOptions.Parse(["rollback"]),
+            TestContext.Current.CancellationToken);
+
+        Assert.Equal(0, exitCode);
+        Assert.Equal(1, synchronization.RestoreHistoryCount);
+        Assert.Equal("latest", synchronization.LastHistoryRestoreRequest?.ScriptName);
     }
 
     private static OutlookResieverCliApplication CreateApplication(
@@ -149,11 +203,15 @@ public sealed class OutlookResieverCliApplicationTests
 
         public int RollbackCount { get; private set; }
 
+        public int RestoreHistoryCount { get; private set; }
+
         public PreviewSynchronizationRequest? LastPreviewRequest { get; private set; }
 
         public DeploySynchronizationRequest? LastDeployRequest { get; private set; }
 
         public RollbackSynchronizationRequest? LastRollbackRequest { get; private set; }
+
+        public HistoryRestoreRequest? LastHistoryRestoreRequest { get; private set; }
 
         public Task<PreviewSynchronizationResult> PreviewAsync(
             PreviewSynchronizationRequest request,
@@ -167,7 +225,19 @@ public sealed class OutlookResieverCliApplicationTests
                     Status = PreviewSynchronizationStatus.Prepared,
                     ManagedRuleCount = 1,
                     TargetScriptName = "srtx-test",
-                    FilesWritten = true
+                    FilesWritten = request.WriteArtifacts,
+                    Plan = new DeploymentPlan
+                    {
+                        SourceActiveScriptName = "",
+                        SourceContentSha256 = Convert.ToHexString(
+                            System.Security.Cryptography.SHA256.HashData(
+                                Array.Empty<byte>())),
+                        CandidateContentBase64 = Convert.ToBase64String("keep;\r\n"u8.ToArray()),
+                        CandidateContentSha256 = Convert.ToHexString(
+                            System.Security.Cryptography.SHA256.HashData(
+                                "keep;\r\n"u8.ToArray())),
+                        TargetScriptName = "srtx-test"
+                    }
                 });
         }
 
@@ -212,8 +282,19 @@ public sealed class OutlookResieverCliApplicationTests
 
         public Task<HistoryRestoreResult> RestoreHistoryAsync(
             HistoryRestoreRequest request,
-            CancellationToken cancellationToken) =>
-            throw new NotSupportedException();
+            CancellationToken cancellationToken)
+        {
+            RestoreHistoryCount++;
+            LastHistoryRestoreRequest = request;
+            return Task.FromResult(
+                new HistoryRestoreResult
+                {
+                    Status = HistoryRestoreStatus.RestoredScript,
+                    SourceScriptName = "srtx-backup-20240101000000-original",
+                    TargetScriptName = "Open-Xchange",
+                    BackupScriptName = "srtx-backup-20240102000000-current"
+                });
+        }
 
         public Task<HistoryDeleteResult> DeleteHistoryAsync(
             HistoryDeleteRequest request,

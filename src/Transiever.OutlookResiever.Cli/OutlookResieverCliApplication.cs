@@ -18,6 +18,7 @@ public sealed class OutlookResieverCliApplication(
         {
             OutlookResieverCommand.Run => RunWorkflowAsync(options, cancellationToken),
             OutlookResieverCommand.Export => ExportAsync(options, cancellationToken),
+            OutlookResieverCommand.Rollback => RollbackLatestAsync(options, cancellationToken),
             _ => throw new InvalidOperationException(
                 $"Unsupported command: {options.Command}")
         };
@@ -39,7 +40,9 @@ public sealed class OutlookResieverCliApplication(
         CancellationToken cancellationToken)
     {
         ExportRulesResult export = await outlook.ExportAsync(
-            new ExportRulesRequest(options.RulesFile, options.DryRun),
+            new ExportRulesRequest(
+                options.RulesFile,
+                options.DryRun || !options.WriteArtifacts),
             cancellationToken);
         ConsolePresentation.PrintExportDiagnostics(export.Diagnostics);
         PrintExportResult(export);
@@ -62,7 +65,8 @@ public sealed class OutlookResieverCliApplication(
                 optimizationMode,
                 options.DryRun,
                 export.Document,
-                options.ScriptName),
+                options.ScriptName,
+                options.WriteArtifacts),
             cancellationToken);
         ConsolePresentation.PrintReconciliationDiagnostics(preview.Diagnostics);
 
@@ -93,10 +97,27 @@ public sealed class OutlookResieverCliApplication(
                 configuration,
                 options.PlanFile,
                 HistoryLimit: options.HistoryLimit,
-                PruneHistory: options.PruneHistory),
+                PruneHistory: options.PruneHistory,
+                Plan: preview.Plan ??
+                    throw new InvalidOperationException(
+                        "Preview did not return deployment metadata.")),
             cancellationToken);
 
         return PrintDeployResult(deploy);
+    }
+
+    private async Task<int> RollbackLatestAsync(
+        CommandLineOptions options,
+        CancellationToken cancellationToken)
+    {
+        HistoryRestoreResult result = await synchronization.RestoreHistoryAsync(
+            new HistoryRestoreRequest(
+                configurationProvider.GetConfiguration(options),
+                "latest",
+                DryRun: options.DryRun),
+            cancellationToken);
+
+        return PrintHistoryRestoreResult(result);
     }
 
     private static int PrintDeployResult(DeploySynchronizationResult result)
@@ -192,6 +213,32 @@ public sealed class OutlookResieverCliApplication(
     {
         Console.Error.WriteLine(message);
         return 2;
+    }
+
+    private static int PrintHistoryRestoreResult(HistoryRestoreResult result)
+    {
+        switch (result.Status)
+        {
+            case HistoryRestoreStatus.PlanValidated:
+                Console.WriteLine(
+                    $"Latest backup '{result.SourceScriptName}' can be restored. No server changes were made.");
+                return 0;
+            case HistoryRestoreStatus.AlreadyActive:
+                Console.WriteLine(
+                    $"Latest backup '{result.SourceScriptName}' already matches the active state.");
+                return 0;
+            case HistoryRestoreStatus.RestoredScript:
+                Console.WriteLine(
+                    $"Restored latest backup '{result.SourceScriptName}' into active script '{result.TargetScriptName}'. Backup '{result.BackupScriptName}' was retained.");
+                return 0;
+            case HistoryRestoreStatus.DisabledActive:
+                Console.WriteLine(
+                    $"Restored original no-active state from '{result.SourceScriptName}'. Backup '{result.BackupScriptName}' was retained.");
+                return 0;
+            default:
+                throw new InvalidOperationException(
+                    $"Unsupported history restore status: {result.Status}");
+        }
     }
 
     private static void PrintDeploymentCleanup(DeploySynchronizationResult result)

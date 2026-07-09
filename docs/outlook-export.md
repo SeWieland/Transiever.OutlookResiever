@@ -25,7 +25,8 @@ Release COM objects best-effort and return per-rule diagnostics instead of abort
 
 Every export writes a `Transiever.SieveRuler` schema v1 document with `sourceId: "outlook"`.
 
-The `run` workflow exports Outlook rules to `rules.json`.
+The `run` workflow exports Outlook rules in memory by default.
+It writes `rules.json` only when `--write-artifacts` is selected.
 Server reconciliation never overwrites the source document with server state.
 
 ## Rule Mapping

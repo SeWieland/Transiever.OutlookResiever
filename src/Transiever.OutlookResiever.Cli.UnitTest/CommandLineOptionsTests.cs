@@ -24,6 +24,7 @@ public sealed class CommandLineOptionsTests
         Assert.Null(options.OptimizationMode);
         Assert.False(options.OptimizationChoiceSpecified);
         Assert.False(options.Deploy);
+        Assert.False(options.WriteArtifacts);
     }
 
     [Theory]
@@ -87,6 +88,7 @@ public sealed class CommandLineOptionsTests
         CommandLineOptions options = CommandLineOptions.Parse(
             [
                 "run",
+                "--write-artifacts",
                 "--adopt-compatible",
                 "--candidate", "candidate.sieve",
                 "--candidate-rules", "candidate-rules.json",
@@ -96,12 +98,40 @@ public sealed class CommandLineOptionsTests
             ]);
 
         Assert.Equal(OutlookResieverCommand.Run, options.Command);
+        Assert.True(options.WriteArtifacts);
         Assert.True(options.AdoptCompatible);
         Assert.Equal("candidate.sieve", options.CandidateFile);
         Assert.Equal("candidate-rules.json", options.CandidateRulesFile);
         Assert.Equal("server.sieve", options.ServerSnapshotFile);
         Assert.Equal("Open-Xchange", options.ScriptName);
         Assert.Equal("plan.json", options.PlanFile);
+    }
+
+    [Fact]
+    public void Parse_RunRejectsArtifactPathWithoutWriteArtifacts()
+    {
+        ArgumentException exception = Assert.Throws<ArgumentException>(
+            () => CommandLineOptions.Parse(["run", "--rules", "rules.json"]));
+
+        Assert.Contains("--write-artifacts", exception.Message);
+    }
+
+    [Fact]
+    public void Parse_RollbackCommand()
+    {
+        CommandLineOptions options = CommandLineOptions.Parse(["rollback", "--dry-run"]);
+
+        Assert.Equal(OutlookResieverCommand.Rollback, options.Command);
+        Assert.True(options.DryRun);
+    }
+
+    [Fact]
+    public void Parse_RollbackRejectsRunOptions()
+    {
+        ArgumentException exception = Assert.Throws<ArgumentException>(
+            () => CommandLineOptions.Parse(["rollback", "--deploy"]));
+
+        Assert.Contains("rollback", exception.Message);
     }
 
     [Fact]
@@ -171,7 +201,6 @@ public sealed class CommandLineOptionsTests
     [InlineData("generate")]
     [InlineData("preview")]
     [InlineData("deploy")]
-    [InlineData("rollback")]
     public void Parse_RejectsGenericSieveRulerCommands(string command)
     {
         ArgumentException exception = Assert.Throws<ArgumentException>(

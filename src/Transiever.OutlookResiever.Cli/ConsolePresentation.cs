@@ -8,16 +8,18 @@ public static class ConsolePresentation
     public static void PrintHelp()
     {
         Console.WriteLine("Usage:");
-        Console.WriteLine("  olrx run      Export Outlook rules, preview server changes, then ask before upload and activation.");
-        Console.WriteLine("  olrx export   Export supported Outlook rules to rules.json.");
+        Console.WriteLine("  olrx run       Export Outlook rules, preview server changes, then ask before upload and activation.");
+        Console.WriteLine("  olrx rollback  Restore the newest inactive SieveRuler backup from the server.");
+        Console.WriteLine("  olrx export    Export supported Outlook rules to rules.json.");
         Console.WriteLine();
         Console.WriteLine("Options:");
-        Console.WriteLine("  --rules <file>   Export destination or input rules JSON.");
-        Console.WriteLine("  --candidate <file>        Reconciled candidate script.");
+        Console.WriteLine("  --write-artifacts         In run, write review files for inspection.");
+        Console.WriteLine("  --rules <file>            Export destination or review rules JSON.");
+        Console.WriteLine("  --candidate <file>        Review candidate script.");
         Console.WriteLine("  --reconciled-rules <file> Combined rules review document.");
         Console.WriteLine("  --candidate-rules <file>  Rules rendered into the candidate script.");
         Console.WriteLine("  --server-snapshot <file>  Downloaded active script.");
-        Console.WriteLine("  --plan <file>             Deployment plan.");
+        Console.WriteLine("  --plan <file>             Advanced deployment plan artifact.");
         Console.WriteLine("  --script-name <name>      Override the preview target script name.");
         Console.WriteLine("  --sieve-host <host>       ManageSieve host override.");
         Console.WriteLine("  --sieve-port <port>       ManageSieve port override.");
@@ -39,7 +41,7 @@ public static class ConsolePresentation
         Console.WriteLine("  -o | -oo | -ooo    Conservative, balanced, or aggressive.");
         Console.WriteLine("  Additional 'o' characters also select aggressive.");
         Console.WriteLine();
-        Console.WriteLine("Generated managed rules include provider UI metadata comments, and deploy prunes inactive SieveRuler history by default.");
+        Console.WriteLine("By default, run writes no local files and deploy retains a server-side backup for rollback.");
     }
 
     public static void PrintExportDiagnostics(
