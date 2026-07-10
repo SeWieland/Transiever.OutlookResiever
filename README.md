@@ -16,6 +16,17 @@ olrx / Transiever.OutlookResiever
         -> Transiever.ManageSieve
 ```
 
+## Install
+
+Install the self-contained Windows x64 build with Scoop:
+
+```powershell
+scoop bucket add transiever https://github.com/SeWieland/Transiever.ScoopBucket
+scoop install transiever/olrx
+```
+
+`olrx` requires classic Outlook for Windows, installed and configured.
+
 ## TL;DR
 
 Configure your ManageSieve server once:
