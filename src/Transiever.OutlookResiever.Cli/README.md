@@ -5,9 +5,7 @@ The main path is `olrx run`.
 It exports from Outlook, optionally optimizes duplicate rules, previews the server candidate,
 then deploys through ManageSieve after confirmation.
 
-Repository overview lives in [../../README.md](../../README.md).
-System boundaries live in [../../docs/architecture.md](../../docs/architecture.md).
-Outlook export details live in [../../docs/outlook-export.md](../../docs/outlook-export.md).
+See the [OutlookResiever project overview](../../README.md), [architecture guide](../../docs/architecture.md), and [Outlook export guide](../../docs/outlook-export.md).
 
 ## TL;DR
 

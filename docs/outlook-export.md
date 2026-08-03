@@ -3,7 +3,7 @@
 This document is the canonical description of classic Outlook access, export mapping, and folder normalization.
 
 The system boundary lives in [architecture](architecture.md).
-Command-facing behavior lives in [../src/Transiever.OutlookResiever.Cli/README.md](../src/Transiever.OutlookResiever.Cli/README.md).
+Command-facing behavior lives in the [OutlookResiever CLI guide](../src/Transiever.OutlookResiever.Cli/README.md).
 
 ## COM Access
 
