@@ -18,11 +18,25 @@ public sealed class OutlookRuleExporterTests
         Assert.Equal("INBOX/Projects", rule.TargetFolder);
         Assert.Collection(
             rule.Conditions,
-            condition => Assert.Equal(RuleConditionType.SubjectContains, condition.Type),
-            condition => Assert.Equal(RuleConditionType.SenderContains, condition.Type),
-            condition => Assert.Equal(RuleConditionType.ReceiverContains, condition.Type),
+            condition =>
+            {
+                Assert.Equal(RuleConditionType.SubjectContains, condition.Type);
+                Assert.Equal(["invoice"], condition.Values);
+            },
+            condition =>
+            {
+                Assert.Equal(RuleConditionType.SenderContains, condition.Type);
+                Assert.Equal(["billing@example.test"], condition.Values);
+            },
+            condition =>
+            {
+                Assert.Equal(RuleConditionType.ReceiverContains, condition.Type);
+                Assert.Equal(["team@example.test"], condition.Values);
+            },
             condition => Assert.Equal(RuleConditionType.HasAttachment, condition.Type));
-        Assert.Equal(RuleConditionType.BodyContains, Assert.Single(rule.Exceptions).Type);
+        RuleCondition exception = Assert.Single(rule.Exceptions);
+        Assert.Equal(RuleConditionType.BodyContains, exception.Type);
+        Assert.Equal(["internal"], exception.Values);
         Assert.Collection(
             rule.Actions,
             action =>
