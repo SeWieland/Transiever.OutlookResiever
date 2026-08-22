@@ -92,6 +92,8 @@ Use `olrx rollback --dry-run` to validate which backup would be restored without
 
 `export` writes supported Outlook rules to `rules.json`.
 Use `olrx export --rules <file>` to select a different destination.
+Both `olrx export` and `olrx run` print rule-scoped export diagnostics before continuing.
+Current schema-v1 mixed-rule output can contain only the supported subset and must be reviewed rather than assumed exact.
 
 Available optimization modes are `conservative`, `balanced`, and `aggressive`.
 The short forms are `-o`, `-oo`, and `-ooo`.

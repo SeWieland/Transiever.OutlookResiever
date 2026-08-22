@@ -61,6 +61,14 @@ Permanent delete is intentionally not mapped.
 Client-only and unsafe Outlook behavior is reported as diagnostics instead of approximated in Sieve.
 This includes scripts, applications, sounds, alerts, printing, categories, importance, sensitivity, RSS, address-book membership, local-machine rules, unsupported send-rule actions, and wizard-only conditions.
 
+## Legacy Partial Export
+
+Current schema-v1 export is collection-level best effort.
+One failed or unsupported-only rule does not hide later rules.
+A mixed rule that still has at least one supported condition and action currently emits that supported subset and reports every omitted enabled condition, exception, or action as a rule-scoped diagnostic.
+This legacy partial output is not an exact conversion and is not used as the downstream baseline artifact; future portability plans classify semantic loss and require acknowledgement before apply.
+The v1 regression identity is the exported name plus `originalOrder`, not a synthesized rule ID.
+
 ## Folder Normalization
 
 Folder paths are normalized during Outlook export.

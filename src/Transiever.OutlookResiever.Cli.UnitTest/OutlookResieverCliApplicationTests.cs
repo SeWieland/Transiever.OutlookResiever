@@ -1,3 +1,4 @@
+using System.Globalization;
 using Transiever.OutlookResiever.Application;
 using Transiever.OutlookResiever.Services;
 using Transiever.SieveRuler.Application;
@@ -6,8 +7,88 @@ using Transiever.SieveRuler.Services;
 
 namespace Transiever.OutlookResiever.Cli.UnitTest;
 
+[Collection(ConsoleCaptureCollection.Name)]
 public sealed class OutlookResieverCliApplicationTests
 {
+    [Fact]
+    public async Task Export_PrintsRuleScopedDiagnostics()
+    {
+        var exporter = new FakeExporter(
+            [
+                new OutlookRuleExportDiagnostic(
+                    "Legacy mixed rule",
+                    "Unsupported Outlook action 'olRuleActionDeletePermanently' was not exported.")
+            ]);
+        var synchronization = new FakeSynchronization();
+        var interaction = new FakeRunInteraction();
+        OutlookResieverCliApplication application = CreateApplication(
+            exporter,
+            synchronization,
+            interaction);
+        CommandLineOptions options = CommandLineOptions.Parse(["export", "--dry-run"]);
+        TextWriter original = Console.Out;
+        using var output = new StringWriter(CultureInfo.InvariantCulture);
+
+        try
+        {
+            Console.SetOut(output);
+            int exitCode = await application.RunAsync(
+                options,
+                TestContext.Current.CancellationToken);
+            Assert.Equal(0, exitCode);
+        }
+        finally
+        {
+            Console.SetOut(original);
+        }
+
+        Assert.Contains(
+            "Rule 'Legacy mixed rule': Unsupported Outlook action 'olRuleActionDeletePermanently' was not exported.",
+            output.ToString(),
+            StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public async Task Run_PrintsRuleScopedDiagnosticsBeforePreview()
+    {
+        var exporter = new FakeExporter(
+            [
+                new OutlookRuleExportDiagnostic(
+                    "Legacy mixed rule",
+                    "Unsupported Outlook action 'olRuleActionDeletePermanently' was not exported.")
+            ]);
+        var synchronization = new FakeSynchronization();
+        var interaction = new FakeRunInteraction();
+        OutlookResieverCliApplication application = CreateApplication(
+            exporter,
+            synchronization,
+            interaction);
+        CommandLineOptions options = CommandLineOptions.Parse(
+            ["run", "--dry-run", "--no-optimize"]);
+        TextWriter original = Console.Out;
+        using var output = new StringWriter(CultureInfo.InvariantCulture);
+
+        try
+        {
+            Console.SetOut(output);
+            int exitCode = await application.RunAsync(
+                options,
+                TestContext.Current.CancellationToken);
+            Assert.Equal(0, exitCode);
+        }
+        finally
+        {
+            Console.SetOut(original);
+        }
+
+        Assert.Contains(
+            "Rule 'Legacy mixed rule': Unsupported Outlook action 'olRuleActionDeletePermanently' was not exported.",
+            output.ToString(),
+            StringComparison.Ordinal);
+        Assert.Equal(1, synchronization.PreviewCount);
+        Assert.Equal(0, synchronization.DeployCount);
+    }
+
     [Fact]
     public async Task Run_ExportsPromptsPreviewsAndSkipsUploadWhenDeclined()
     {
@@ -166,8 +247,11 @@ public sealed class OutlookResieverCliApplicationTests
         return directory;
     }
 
-    private sealed class FakeExporter : IOutlookRuleExporter
+    private sealed class FakeExporter(
+        IReadOnlyCollection<OutlookRuleExportDiagnostic>? diagnostics = null) : IOutlookRuleExporter
     {
+        private readonly IReadOnlyCollection<OutlookRuleExportDiagnostic> diagnostics = diagnostics ?? [];
+
         public int ExportCount { get; private set; }
 
         public OutlookRuleExportResult Export()
@@ -190,7 +274,8 @@ public sealed class OutlookResieverCliApplicationTests
                             }
                         ]
                     }
-                ]
+                ],
+                Diagnostics = diagnostics
             };
         }
     }
