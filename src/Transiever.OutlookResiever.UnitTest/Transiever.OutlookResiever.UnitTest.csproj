@@ -23,4 +23,10 @@
     <ProjectReference Include="..\Transiever.OutlookResiever\Transiever.OutlookResiever.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Fixtures\OutlookV1\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
