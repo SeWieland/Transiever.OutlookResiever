@@ -20,6 +20,62 @@ public sealed class OutlookExportApplicationTests
                 Assert.Equal("Project invoices", rule.Name);
                 Assert.Equal(1, rule.OriginalOrder);
                 Assert.Null(rule.Id);
+                Assert.Equal("INBOX/Projects", rule.TargetFolder);
+                Assert.Equal(RuleConditionMode.All, rule.ConditionMode);
+                Assert.Collection(
+                    rule.Conditions,
+                    condition =>
+                    {
+                        Assert.Equal(RuleConditionType.SubjectContains, condition.Type);
+                        Assert.Equal(["invoice"], condition.Values);
+                    },
+                    condition =>
+                    {
+                        Assert.Equal(RuleConditionType.SenderContains, condition.Type);
+                        Assert.Equal(["billing@example.test"], condition.Values);
+                    },
+                    condition =>
+                    {
+                        Assert.Equal(RuleConditionType.ReceiverContains, condition.Type);
+                        Assert.Equal(["team@example.test"], condition.Values);
+                    },
+                    condition =>
+                    {
+                        Assert.Equal(RuleConditionType.HasAttachment, condition.Type);
+                        Assert.Empty(condition.Values);
+                    });
+                RuleCondition exception = Assert.Single(rule.Exceptions);
+                Assert.Equal(RuleConditionType.BodyContains, exception.Type);
+                Assert.Equal(["internal"], exception.Values);
+                Assert.Collection(
+                    rule.Actions,
+                    action =>
+                    {
+                        Assert.Equal(RuleActionType.SetFlags, action.Type);
+                        Assert.Equal(["\\Seen"], action.Values);
+                    },
+                    action =>
+                    {
+                        Assert.Equal(RuleActionType.FileInto, action.Type);
+                        Assert.Equal(["INBOX/Projects"], action.Values);
+                    },
+                    action =>
+                    {
+                        Assert.Equal(RuleActionType.CopyInto, action.Type);
+                        Assert.Equal(["Archive/Projects"], action.Values);
+                    },
+                    action =>
+                    {
+                        Assert.Equal(RuleActionType.Redirect, action.Type);
+                        Assert.Equal(["archive@example.test"], action.Values);
+                    },
+                    action =>
+                    {
+                        Assert.Equal(RuleActionType.Stop, action.Type);
+                        Assert.Empty(action.Values);
+                    });
+                Assert.Equal(RuleOwnership.Managed, rule.Ownership);
+                Assert.Empty(rule.RequiredCapabilities);
             });
 
     [Fact]
@@ -35,6 +91,28 @@ public sealed class OutlookExportApplicationTests
                 Assert.Equal("Legacy mixed rule", rule.Name);
                 Assert.Equal(0, rule.OriginalOrder);
                 Assert.Null(rule.Id);
+                Assert.Equal("INBOX/Projects", rule.TargetFolder);
+                Assert.Equal(RuleConditionMode.All, rule.ConditionMode);
+                RuleCondition condition = Assert.Single(rule.Conditions);
+                Assert.Equal(RuleConditionType.SubjectContains, condition.Type);
+                Assert.Equal(["project"], condition.Values);
+                RuleCondition exception = Assert.Single(rule.Exceptions);
+                Assert.Equal(RuleConditionType.BodyContains, exception.Type);
+                Assert.Equal(["internal"], exception.Values);
+                Assert.Collection(
+                    rule.Actions,
+                    action =>
+                    {
+                        Assert.Equal(RuleActionType.FileInto, action.Type);
+                        Assert.Equal(["INBOX/Projects"], action.Values);
+                    },
+                    action =>
+                    {
+                        Assert.Equal(RuleActionType.Stop, action.Type);
+                        Assert.Empty(action.Values);
+                    });
+                Assert.Equal(RuleOwnership.Managed, rule.Ownership);
+                Assert.Empty(rule.RequiredCapabilities);
             });
 
     private static async Task AssertGoldenAsync(
