@@ -57,7 +57,9 @@ public sealed class OutlookResieverCliApplicationTests
                     "Legacy mixed rule",
                     "Unsupported Outlook action 'olRuleActionDeletePermanently' was not exported.")
             ]);
-        var synchronization = new FakeSynchronization();
+        TextWriter original = Console.Out;
+        using var output = new StringWriter(CultureInfo.InvariantCulture);
+        var synchronization = new FakeSynchronization(output.ToString);
         var interaction = new FakeRunInteraction();
         OutlookResieverCliApplication application = CreateApplication(
             exporter,
@@ -65,8 +67,6 @@ public sealed class OutlookResieverCliApplicationTests
             interaction);
         CommandLineOptions options = CommandLineOptions.Parse(
             ["run", "--dry-run", "--no-optimize"]);
-        TextWriter original = Console.Out;
-        using var output = new StringWriter(CultureInfo.InvariantCulture);
 
         try
         {
@@ -84,6 +84,10 @@ public sealed class OutlookResieverCliApplicationTests
         Assert.Contains(
             "Rule 'Legacy mixed rule': Unsupported Outlook action 'olRuleActionDeletePermanently' was not exported.",
             output.ToString(),
+            StringComparison.Ordinal);
+        Assert.Contains(
+            "Rule 'Legacy mixed rule': Unsupported Outlook action 'olRuleActionDeletePermanently' was not exported.",
+            synchronization.OutputAtPreview,
             StringComparison.Ordinal);
         Assert.Equal(1, synchronization.PreviewCount);
         Assert.Equal(0, synchronization.DeployCount);
@@ -280,7 +284,7 @@ public sealed class OutlookResieverCliApplicationTests
         }
     }
 
-    private sealed class FakeSynchronization : ISieveSynchronizationWorkflow
+    private sealed class FakeSynchronization(Func<string>? previewOutput = null) : ISieveSynchronizationWorkflow
     {
         public int PreviewCount { get; private set; }
 
@@ -289,6 +293,8 @@ public sealed class OutlookResieverCliApplicationTests
         public int RollbackCount { get; private set; }
 
         public int RestoreHistoryCount { get; private set; }
+
+        public string OutputAtPreview { get; private set; } = "";
 
         public PreviewSynchronizationRequest? LastPreviewRequest { get; private set; }
 
@@ -302,6 +308,7 @@ public sealed class OutlookResieverCliApplicationTests
             PreviewSynchronizationRequest request,
             CancellationToken cancellationToken)
         {
+            OutputAtPreview = previewOutput?.Invoke() ?? "";
             PreviewCount++;
             LastPreviewRequest = request;
             return Task.FromResult(
