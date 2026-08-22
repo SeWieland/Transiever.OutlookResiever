@@ -85,7 +85,29 @@ public sealed class OutlookExportApplicationTests
             OutlookSyntheticTestObjects.CreateOut003,
             (result, loaded) =>
             {
-                Assert.Equal(3, result.Diagnostics.Count);
+                Assert.Collection(
+                    result.Diagnostics,
+                    diagnostic =>
+                    {
+                        Assert.Equal("Legacy mixed rule", diagnostic.RuleName);
+                        Assert.Equal(
+                            "Unsupported Outlook condition 'olConditionMessageHeader' was not exported.",
+                            diagnostic.Message);
+                    },
+                    diagnostic =>
+                    {
+                        Assert.Equal("Legacy mixed rule", diagnostic.RuleName);
+                        Assert.Equal(
+                            "Unsupported Outlook exception 'olConditionLocalMachineOnly' was not exported.",
+                            diagnostic.Message);
+                    },
+                    diagnostic =>
+                    {
+                        Assert.Equal("Legacy mixed rule", diagnostic.RuleName);
+                        Assert.Equal(
+                            "Unsupported Outlook action 'olRuleActionDeletePermanently' was not exported.",
+                            diagnostic.Message);
+                    });
                 Assert.Empty(loaded.Diagnostics);
                 RuleDefinition rule = Assert.Single(loaded.Rules);
                 Assert.Equal("Legacy mixed rule", rule.Name);
@@ -123,6 +145,12 @@ public sealed class OutlookExportApplicationTests
         string actualFile = Path.Combine(
             Path.GetTempPath(),
             $"OutlookResiever-{scenarioId}-{Guid.NewGuid():N}.rules.json");
+        string fixtureFile = Path.Combine(
+            AppContext.BaseDirectory,
+            "Fixtures",
+            "OutlookV1",
+            $"{scenarioId}.rules.json");
+        bool fixtureExists = File.Exists(fixtureFile);
         var serializer = new JsonRuleSerializer();
         var application = new OutlookExportApplication(
             new OutlookRuleExporter(
@@ -130,25 +158,20 @@ public sealed class OutlookExportApplicationTests
                 () => outlookFactory()),
             serializer);
 
-        ExportRulesResult result = await application.ExportAsync(
-            new ExportRulesRequest(actualFile),
-            TestContext.Current.CancellationToken);
-        byte[] actual = await File.ReadAllBytesAsync(
-            actualFile,
-            TestContext.Current.CancellationToken);
-        string fixtureFile = Path.Combine(
-            AppContext.BaseDirectory,
-            "Fixtures",
-            "OutlookV1",
-            $"{scenarioId}.rules.json");
-
-        if (!File.Exists(fixtureFile))
-        {
-            Assert.Fail($"Missing {scenarioId} golden. Inspect product output at {actualFile}.");
-        }
-
         try
         {
+            ExportRulesResult result = await application.ExportAsync(
+                new ExportRulesRequest(actualFile),
+                TestContext.Current.CancellationToken);
+            byte[] actual = await File.ReadAllBytesAsync(
+                actualFile,
+                TestContext.Current.CancellationToken);
+
+            if (!fixtureExists)
+            {
+                Assert.Fail($"Missing {scenarioId} golden. Inspect product output at {actualFile}.");
+            }
+
             byte[] expected = await File.ReadAllBytesAsync(
                 fixtureFile,
                 TestContext.Current.CancellationToken);
@@ -171,7 +194,10 @@ public sealed class OutlookExportApplicationTests
         }
         finally
         {
-            File.Delete(actualFile);
+            if (fixtureExists)
+            {
+                File.Delete(actualFile);
+            }
         }
     }
 }

@@ -194,7 +194,11 @@ OUTLOOKRESIEVER_FOLDER_ARCHIVE=Archive
 
 ## Supported Rule Subset
 
-`olrx` exports enabled Outlook receive rules whose server-side meaning maps cleanly to Sieve.
+`olrx` fully exports enabled receive rules only when every enabled condition, exception, and action has a supported server-side Sieve meaning.
+An enabled rule with only unsupported shapes is excluded and reported with rule-scoped diagnostics.
+For legacy mixed rules, `olrx` writes the supported subset and reports every omitted unsupported shape.
+That partial output is not an exact, future-safe conversion and must be reviewed before deployment.
+Until a future acknowledgement-bearing M2/M3 policy is introduced, diagnostics do not make a mixed-rule export safe to deploy without that review.
 
 Supported conditions and exceptions include:
 
@@ -216,7 +220,6 @@ Supported actions include:
 
 Only SieveRuler's strict compatible Sieve subset is imported semantically.
 Unsupported and user-authored Sieve content is retained without rewriting.
-Unsupported enabled Outlook shapes are reported as diagnostics.
 Review target folder names, redirect recipients, mark-read behavior, optimization diagnostics, and server capabilities before deployment.
 
 [`srtx`]: https://github.com/SeWieland/Transiever.SieveRuler
