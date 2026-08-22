@@ -198,7 +198,8 @@ OUTLOOKRESIEVER_FOLDER_ARCHIVE=Archive
 An enabled rule with only unsupported shapes is excluded and reported with rule-scoped diagnostics.
 For legacy mixed rules, `olrx` writes the supported subset and reports every omitted unsupported shape.
 That partial output is not an exact, future-safe conversion and must be reviewed before deployment.
-Until a future acknowledgement-bearing M2/M3 policy is introduced, diagnostics do not make a mixed-rule export safe to deploy without that review.
+The current v1 workflow has no semantic-loss acknowledgement gate.
+A future projection workflow may add one, but today diagnostics do not make a mixed-rule export safe to deploy without review.
 
 Supported conditions and exceptions include:
 
