@@ -21,10 +21,14 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Transiever.OutlookResiever\Transiever.OutlookResiever.csproj" />
+    <ProjectReference Include="..\Transiever.OutlookResiever.Cli\Transiever.OutlookResiever.Cli.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <None Update="Fixtures\OutlookV1\*.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Fixtures\PathV1\*.base64">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
