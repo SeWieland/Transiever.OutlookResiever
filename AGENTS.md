@@ -84,5 +84,7 @@ Keep documentation accurate, but do not duplicate the same contract across every
 
 GitHub Actions are repository-local and run on Windows because `olrx` targets `net10.0-windows`.
 Releases are manual, stable from `main`, and `beta` from `dev`.
-CI and release validation must include package dependency mode with `SieveRulerProject` forced missing.
+Repository-only GitHub-hosted CI and release checkouts enforce package-dependency mode.
+Umbrella-local validation must force `SieveRulerProject` to a missing path.
+Published builds must not resolve sibling dependencies.
 They attach a self-contained `olrx` asset for `win-x64` only.
