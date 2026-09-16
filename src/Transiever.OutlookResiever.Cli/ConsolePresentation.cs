@@ -24,7 +24,7 @@ public static class ConsolePresentation
         Console.WriteLine("  --sieve-host <host>       ManageSieve host override.");
         Console.WriteLine("  --sieve-port <port>       ManageSieve port override.");
         Console.WriteLine("  --sieve-username <name>   ManageSieve username override.");
-        Console.WriteLine("  --sieve-password <value>  ManageSieve password override.");
+        Console.WriteLine("  --sieve-password-stdin    Read the ManageSieve password from standard input.");
         Console.WriteLine("  --sieve-security-mode <mode> ManageSieve security mode override.");
         Console.WriteLine("  --adopt-compatible        Adopt compatible external rules.");
         Console.WriteLine("  --preserve-compatible     Preserve compatible external rules.");
