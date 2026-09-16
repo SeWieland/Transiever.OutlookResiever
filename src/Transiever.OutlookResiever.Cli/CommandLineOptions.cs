@@ -46,7 +46,7 @@ public sealed class CommandLineOptions
 
     public string? SieveUserName { get; private init; }
 
-    public string? SievePassword { get; private init; }
+    public bool SievePasswordStdin { get; private init; }
 
     public SieveConnectionSecurity? SieveSecurity { get; private init; }
 
@@ -65,6 +65,11 @@ public sealed class CommandLineOptions
         if (IsHelp(commandText))
         {
             return new CommandLineOptions { ShowHelp = true };
+        }
+
+        if (IsSecretOptionValue(commandText))
+        {
+            throw new ArgumentException("Secret input cannot be supplied through an option value.");
         }
 
         OutlookResieverCommand command = ParseCommand(commandText)
@@ -92,7 +97,7 @@ public sealed class CommandLineOptions
         string? sieveHost = null;
         int? sievePort = null;
         string? sieveUserName = null;
-        string? sievePassword = null;
+        var sievePasswordStdin = false;
         SieveConnectionSecurity? sieveSecurity = null;
 
         while (index < args.Count)
@@ -226,7 +231,14 @@ public sealed class CommandLineOptions
                     break;
 
                 case "--sieve-password":
-                    sievePassword = ReadOptionValue(args, ref index, option);
+                    throw new ArgumentException("Passwords cannot be supplied through --sieve-password.");
+                case "--sieve-password-stdin":
+                    if (index + 1 < args.Count && !args[index + 1].StartsWith("-", StringComparison.Ordinal))
+                    {
+                        throw new ArgumentException("Secret input cannot be supplied through an option value.");
+                    }
+
+                    sievePasswordStdin = true;
                     break;
 
                 case "--sieve-security-mode":
@@ -239,12 +251,22 @@ public sealed class CommandLineOptions
                     return new CommandLineOptions { ShowHelp = true };
 
                 default:
+                    if (IsSecretOptionValue(option))
+                    {
+                        throw new ArgumentException("Secret input cannot be supplied through an option value.");
+                    }
+
                     if (TryParseOptimizationShorthand(option, out RuleOptimizationMode shorthandMode))
                     {
                         optimizationMode = shorthandMode;
                         optimizationChoiceSpecified = true;
                         rollbackUnsupportedOptionSpecified = true;
                         break;
+                    }
+
+                    if (index > 1 && args[index - 1] == "--sieve-password-stdin")
+                    {
+                        throw new ArgumentException("Secret input cannot be supplied through an option value.");
                     }
 
                     throw new ArgumentException($"Unknown option: {option}");
@@ -289,7 +311,7 @@ public sealed class CommandLineOptions
             SieveHost = sieveHost,
             SievePort = sievePort,
             SieveUserName = sieveUserName,
-            SievePassword = sievePassword,
+            SievePasswordStdin = sievePasswordStdin,
             SieveSecurity = sieveSecurity
         };
     }
@@ -309,6 +331,10 @@ public sealed class CommandLineOptions
     {
         return value is "-h" or "--help" or "help";
     }
+
+    private static bool IsSecretOptionValue(string value) =>
+        value.StartsWith("--sieve-password=", StringComparison.OrdinalIgnoreCase) ||
+        value.StartsWith("--sieve-password-stdin=", StringComparison.OrdinalIgnoreCase);
 
     private static string ReadOptionValue(
         IReadOnlyList<string> args,

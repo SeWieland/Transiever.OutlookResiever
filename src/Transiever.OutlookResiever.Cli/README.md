@@ -114,8 +114,10 @@ TRANSIEVER_SIEVE_PASSWORD=secret
 TRANSIEVER_SIEVE_SECURITY_MODE=StartTlsRequired
 ```
 
-Use `--sieve-host`, `--sieve-port`, `--sieve-username`, `--sieve-password`,
-and `--sieve-security-mode` to override those values for a targeted command.
+Use `--sieve-host`, `--sieve-port`, `--sieve-username`, and
+`--sieve-security-mode` to override non-secret values for a targeted command.
+Use `--sieve-password-stdin` to read one non-empty password from redirected standard input.
+Passwords cannot be supplied as command-line values.
 The port and security mode are optional.
 The default is port 4190 with required STARTTLS.
 `ImplicitTls` is also supported.
