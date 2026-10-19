@@ -29,4 +29,7 @@
     <PackageReference Include="Transiever.SieveRuler" Version="1.2.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="Transiever.OutlookResiever.Cli.UnitTest" />
+  </ItemGroup>
 </Project>
