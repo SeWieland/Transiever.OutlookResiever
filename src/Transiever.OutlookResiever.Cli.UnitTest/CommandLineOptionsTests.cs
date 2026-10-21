@@ -14,6 +14,30 @@ public sealed class CommandLineOptionsTests
     }
 
     [Fact]
+    public void Parse_RunAcceptsAccountSelector()
+    {
+        CommandLineOptions options = CommandLineOptions.Parse(
+            ["run", "--account", "account:00000000-0000-0000-0000-000000000001"]);
+
+        Assert.Equal(OutlookResieverCommand.Run, options.Command);
+        Assert.Equal("account:00000000-0000-0000-0000-000000000001", options.Account);
+        Assert.False(options.ShowHelp);
+    }
+
+    [Fact]
+    public void Parse_RollbackAcceptsAccountButExportDoesNot()
+    {
+        string account = "account:00000000-0000-0000-0000-000000000001";
+
+        CommandLineOptions rollback = CommandLineOptions.Parse(["rollback", "--account", account]);
+
+        Assert.Equal(account, rollback.Account);
+        ArgumentException exception = Assert.Throws<ArgumentException>(
+            () => CommandLineOptions.Parse(["export", "--account", account]));
+        Assert.Contains("does not accept --account", exception.Message);
+    }
+
+    [Fact]
     public void Parse_RunCommandUsesWorkflowDefaults()
     {
         CommandLineOptions options = CommandLineOptions.Parse(["run"]);
