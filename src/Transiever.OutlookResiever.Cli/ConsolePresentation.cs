@@ -26,6 +26,7 @@ public static class ConsolePresentation
         Console.WriteLine("  --sieve-username <name>   ManageSieve username override.");
         Console.WriteLine("  --sieve-password-stdin    Read the ManageSieve password from standard input.");
         Console.WriteLine("  --sieve-security-mode <mode> ManageSieve security mode override.");
+        Console.WriteLine("  --account <account:<guid>> Select a saved ManageSieve account; TRANSIEVER_ACCOUNT is the default.");
         Console.WriteLine("  --adopt-compatible        Adopt compatible external rules.");
         Console.WriteLine("  --preserve-compatible     Preserve compatible external rules.");
         Console.WriteLine("  --deploy                  In run, upload and activate after preview without prompting.");
