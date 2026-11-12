@@ -40,6 +40,8 @@ public sealed class CommandLineOptions
 
     public bool PruneHistory { get; private init; } = true;
 
+    public string? Account { get; private init; }
+
     public string? SieveHost { get; private init; }
 
     public int? SievePort { get; private init; }
@@ -94,6 +96,7 @@ public sealed class CommandLineOptions
         var pruneHistory = true;
         var artifactPathSpecified = false;
         var rollbackUnsupportedOptionSpecified = false;
+        string? account = null;
         string? sieveHost = null;
         int? sievePort = null;
         string? sieveUserName = null;
@@ -222,6 +225,10 @@ public sealed class CommandLineOptions
                     sieveHost = ReadOptionValue(args, ref index, option);
                     break;
 
+                case "--account":
+                    account = ReadOptionValue(args, ref index, option);
+                    break;
+
                 case "--sieve-port":
                     sievePort = ReadPortOption(args, ref index, option);
                     break;
@@ -287,7 +294,12 @@ public sealed class CommandLineOptions
             rollbackUnsupportedOptionSpecified)
         {
             throw new ArgumentException(
-                "olrx rollback only accepts --dry-run and --sieve-* options.");
+                "olrx rollback only accepts --dry-run, --account, and --sieve-* options.");
+        }
+
+        if (command == OutlookResieverCommand.Export && account is not null)
+        {
+            throw new ArgumentException("olrx export does not accept --account.");
         }
 
         return new CommandLineOptions
@@ -308,6 +320,7 @@ public sealed class CommandLineOptions
             WriteArtifacts = writeArtifacts,
             HistoryLimit = historyLimit,
             PruneHistory = pruneHistory,
+            Account = account,
             SieveHost = sieveHost,
             SievePort = sievePort,
             SieveUserName = sieveUserName,

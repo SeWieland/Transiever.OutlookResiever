@@ -125,6 +125,15 @@ The default is port 4190 with required STARTTLS.
 Plaintext authentication is refused.
 If the password variable is absent, an interactive terminal prompts without echoing it.
 
+Select a saved account for `run` or `rollback` with `--account account:<guid>`;
+`TRANSIEVER_ACCOUNT` supplies the default selector, and the command-line selector wins when both are present.
+The selected profile supplies endpoint defaults and its stored password is used only when no safe explicit input or password environment variable was provided.
+Command-line and environment values override profile fields.
+Missing, unavailable, expired, or rejected stored passwords are never reused; an interactive terminal may prompt, while redirected input without `--sieve-password-stdin` requires a usable stored password or `TRANSIEVER_SIEVE_PASSWORD`.
+The current ManageSieve connector supports the `PLAIN` authentication preference only; other saved preferences fail before credential lookup.
+OAuth refresh tokens are not used as passwords.
+`export` does not use account selection.
+
 ## Review Artifacts
 
 `olrx run --write-artifacts` writes `rules.json`, `reconciled-rules.json`, `candidate-rules.json`,
