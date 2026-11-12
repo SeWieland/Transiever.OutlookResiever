@@ -32,7 +32,6 @@ updates:
   - package-ecosystem: nuget
     directories:
       - /src/Transiever.OutlookResiever.UnitTest
-      - /src/Transiever.OutlookResiever.Cli.UnitTest
     schedule:
       interval: daily
       time: '08:00'

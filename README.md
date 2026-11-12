@@ -68,8 +68,7 @@ Start here, then follow the focused guides:
 ```text
 src/Transiever.OutlookResiever/              Outlook COM adapter
 src/Transiever.OutlookResiever.Cli/          `olrx` workflow CLI
-src/Transiever.OutlookResiever.UnitTest/     Adapter tests
-src/Transiever.OutlookResiever.Cli.UnitTest/ CLI tests
+src/Transiever.OutlookResiever.UnitTest/     Adapter and CLI tests
 ```
 
 ## Feature Summary
@@ -88,7 +87,7 @@ Operational details live in the linked component guides instead of being repeate
 
 ```bash
 dotnet build Transiever.OutlookResiever.slnx
-dotnet test Transiever.OutlookResiever.slnx
+dotnet test --solution Transiever.OutlookResiever.slnx
 dotnet run --project src/Transiever.OutlookResiever.Cli -- --help
 ```
 

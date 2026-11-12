@@ -18,8 +18,7 @@ docs/outlook-export.md
 src/
   Transiever.OutlookResiever/              Outlook COM adapter
   Transiever.OutlookResiever.Cli/          `olrx` workflow CLI
-  Transiever.OutlookResiever.UnitTest/
-  Transiever.OutlookResiever.Cli.UnitTest/
+  Transiever.OutlookResiever.UnitTest/     Adapter and CLI tests
 ```
 
 The adapter temporarily references the sibling `Transiever.SieveRuler` project during local umbrella development.
@@ -43,7 +42,7 @@ Update the canonical owner for the changed behavior.
 
 ```bash
 dotnet build Transiever.OutlookResiever.slnx
-dotnet test Transiever.OutlookResiever.slnx
+dotnet test --solution Transiever.OutlookResiever.slnx
 dotnet run --project src/Transiever.OutlookResiever.Cli -- --help
 ```
 
