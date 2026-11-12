@@ -5,8 +5,32 @@ using Transiever.SieveRuler.Services;
 namespace Transiever.OutlookResiever.Cli.UnitTest;
 
 [Collection("Environment")]
-public sealed class ConfigurationProviderTests
+public sealed class ConfigurationProviderTests : IDisposable
 {
+    private static readonly string[] EnvironmentVariableNames =
+    [
+        "TRANSIEVER_SIEVE_HOST",
+        "TRANSIEVER_SIEVE_PORT",
+        "TRANSIEVER_SIEVE_USERNAME",
+        "TRANSIEVER_SIEVE_PASSWORD",
+        "TRANSIEVER_SIEVE_SECURITY_MODE",
+        "TRANSIEVER_ACCOUNT",
+        "OUTLOOKRESIEVER_FOLDER_JUNK"
+    ];
+
+    private readonly Dictionary<string, string?> originalEnvironment =
+        EnvironmentVariableNames.ToDictionary(
+            name => name,
+            Environment.GetEnvironmentVariable);
+
+    public void Dispose()
+    {
+        foreach ((string name, string? value) in originalEnvironment)
+        {
+            Environment.SetEnvironmentVariable(name, value);
+        }
+    }
+
     [Fact]
     public void StandardInputPassword_RejectsTerminalWithoutReading()
     {
