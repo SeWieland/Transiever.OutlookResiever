@@ -25,6 +25,10 @@ Its CLI may wrap SieveRuler's synchronization workflow for the guided Outlook-to
 * Generic rollback and retained-history policy.
 `Transiever.ManageSieve` owns ManageSieve protocol execution.
 
+The CLI references the versioned `Transiever.Common.Cli` package for hidden input, required single-line secrets, and secret-option assignment matching.
+Configuration precedence, account resolution, prompts, and Outlook-access timing remain CLI-owned.
+The adapter library has no dependency on that package.
+
 ## Focused Docs
 
 Use the focused docs instead of restating the same policy in multiple places:
