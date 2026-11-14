@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Transiever.OutlookResiever\Transiever.OutlookResiever.csproj" />
     <PackageReference Include="Transiever.Common.Accounts" Version="1.1.0" />
+    <PackageReference Include="Transiever.Common.Cli" Version="1.2.0" />
   </ItemGroup>
 
   <ItemGroup Condition="Exists('$(SieveRulerProject)')">
