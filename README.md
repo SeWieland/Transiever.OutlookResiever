@@ -85,6 +85,9 @@ Operational details live in the linked component guides instead of being repeate
 
 ## Development
 
+This candidate depends on the unpublished `Transiever.Common.Cli` package.
+Before running these commands, make the matching packed version available through an explicit local NuGet source; see [Common candidate validation](https://github.com/SeWieland/Transiever.Common#development).
+
 ```bash
 dotnet build Transiever.OutlookResiever.slnx
 dotnet test --solution Transiever.OutlookResiever.slnx
